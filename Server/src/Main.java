@@ -1,56 +1,49 @@
-import java.io.*;
-import java.net.*;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class Main
 {
-    private static ServerSocket serverSocket;
-    private static PrintWriter printWriter;
-    private static BufferedReader bufferedReader;
+    static Logger logger;
+
+    private static NetworkManager networkManager;
 
     public static void main(String[] args) throws Exception
     {
-        startServer();
+        logger = setUpLogger();
 
-        String receiveMessage;
+        networkManager = new NetworkManager();
+        networkManager.startServer(8845);
+
         while(true)
         {
             try{
                 Thread.sleep(10);
             }
             catch (Exception e){
-                System.out.println("Error: unable to skip 10ms\n" + e.getMessage());
+                System.out.println("Error: unable to skip 10ms, " + e.toString());
             }
 
-            try{
-                if ((receiveMessage = bufferedReader.readLine()) != null) {
-                    System.out.println(receiveMessage);
-
-                    if(receiveMessage.equals("@reboot")){
-                        serverSocket.close();
-                        startServer();
-                    }
-
-                }
-            }
-            catch (Exception e){
-                System.out.println("Error: Received null msg\n" + e.getMessage());
-            }
+            networkManager.readMessage();
         }
     }
 
-    private static void startServer(){
+    private static Logger setUpLogger(){
+        Logger logger = Logger.getLogger("SPSLogger");
+        logger.setUseParentHandlers(false);
+        FileHandler fh;
+
         try {
-            serverSocket = new ServerSocket(8080);
-            Socket sock = serverSocket.accept();
+            fh = new FileHandler("Logs.log", true);
+            logger.addHandler(fh);
+            SimpleFormatter formatter = new SimpleFormatter();
+            fh.setFormatter(formatter);
 
-            OutputStream oStream = sock.getOutputStream();
-            printWriter = new PrintWriter(oStream, true);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
-            InputStream iStream = sock.getInputStream();
-            bufferedReader = new BufferedReader(new InputStreamReader(iStream));
-        }
-        catch (Exception e){
-            System.out.println("Error: Socket server not starting\n" + e.getMessage());
-        }
+        return logger;
     }
 }
