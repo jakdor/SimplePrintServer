@@ -32,7 +32,7 @@ class NetworkManager {
             serverSocket.close();
         }
         catch (Exception e){
-            Main.logger.info("Error shutting down socket server, " + e.toString());
+            Main.logger.info("Can't shut down socket server, " + e.toString());
         }
     }
 
