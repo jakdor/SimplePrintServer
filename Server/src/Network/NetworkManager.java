@@ -1,15 +1,19 @@
+package Network;
+
+import Server.Main;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-class NetworkManager {
+public class NetworkManager {
 
     private int port = 8000;
     private ServerSocket serverSocket;
     private PrintWriter printWriter;
     private BufferedReader bufferedReader;
 
-    void startServer(int port){
+    public void startServer(int port){
         this.port = port;
 
         try {
@@ -23,20 +27,20 @@ class NetworkManager {
             bufferedReader = new BufferedReader(new InputStreamReader(iStream));
         }
         catch (Exception e){
-            Main.logger.info("Error: Socket server not starting, " + e.toString());
+            Main.log("Error: Socket server not starting, " + e.toString());
         }
     }
 
-    void shutdownServer(){
+    public void shutdownServer(){
         try {
             serverSocket.close();
         }
         catch (Exception e){
-            Main.logger.info("Can't shut down socket server, " + e.toString());
+            Main.log("Can't shut down socket server, " + e.toString());
         }
     }
 
-    String readMessage(){
+    public String readMessage(){
         String receiveMessage;
         try {
             if((receiveMessage = bufferedReader.readLine()) != null){
@@ -48,7 +52,7 @@ class NetworkManager {
             }
         }
         catch (Exception e){
-            Main.logger.info("Unable to read receive buffer, " + e.toString());
+            Main.log("Unable to read receive buffer, " + e.toString());
             return "";
         }
 
