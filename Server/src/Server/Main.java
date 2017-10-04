@@ -60,12 +60,19 @@ public class Main
         MenuItem exitItem = new MenuItem("Exit");
 
         settingsItem.addActionListener(listener -> {
-
+            Runnable runnable = () -> {
+                SettingsDialog settingsDialog = new SettingsDialog();
+                settingsDialog.start(settings);
+            };
+            new Thread(runnable).run();
         });
 
         aboutItem.addActionListener(listener -> {
-            About about = new About();
-            about.start();
+            Runnable runnable = () -> {
+                About about = new About();
+                about.start();
+            };
+            new Thread(runnable).run();
         });
 
         exitItem.addActionListener(listener ->{
