@@ -5,13 +5,13 @@ import Utils.Settings;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 public class Main
 {
+    private static boolean mainLoop = true;
     private static Logger logger;
 
     private static NetworkManager networkManager;
@@ -29,7 +29,7 @@ public class Main
         networkManager = new NetworkManager();
         networkManager.startServer(settings.getPort());
 
-        while(true)
+        while(mainLoop)
         {
             try{
                 Thread.sleep(10);
@@ -40,6 +40,8 @@ public class Main
 
             networkManager.readMessage();
         }
+
+        System.exit(0);
     }
 
     private static void setupSystemTray(){
@@ -57,9 +59,23 @@ public class Main
         MenuItem aboutItem = new MenuItem("About");
         MenuItem exitItem = new MenuItem("Exit");
 
+        settingsItem.addActionListener(listener -> {
+
+        });
+
+        aboutItem.addActionListener(listener -> {
+            About about = new About();
+            about.start();
+        });
+
+        exitItem.addActionListener(listener ->{
+            networkManager.shutdownServer();
+            mainLoop = false;
+        });
+
         //Add components to pop-up menu
-        popup.add(aboutItem);
         popup.add(settingsItem);
+        popup.add(aboutItem);
         popup.add(exitItem);
 
         if(trayIcon != null) {
@@ -84,7 +100,7 @@ public class Main
             icon = new TrayIcon(trayIconImage.getScaledInstance(trayIconWidth, -1, Image.SCALE_SMOOTH));
         }
         catch (Exception e){
-            log(e.toString());
+            log("Can't load app icon, " + e.toString());
             return null;
         }
 

@@ -14,6 +14,7 @@ public class Settings {
 
     private int port;
     private String savePath;
+    private boolean openOptions;
     private boolean logging;
 
     public Settings(String settingsFileName){
@@ -35,6 +36,7 @@ public class Settings {
         if(failFlag || lines.isEmpty()){
             setDefaultSettings();
             saveSettings();
+            Main.log("Generated default settings file");
         }
         else {
             parseSettings();
@@ -45,6 +47,7 @@ public class Settings {
         lines.removeAllElements();
         lines.add(Integer.toString(port));
         lines.add(savePath);
+        lines.add(Boolean.toString(openOptions));
         lines.add(Boolean.toString(logging));
 
         try {
@@ -58,18 +61,21 @@ public class Settings {
     private void parseSettings(){
         port = Integer.parseInt(lines.get(0));
         savePath = lines.get(1);
-        logging = Boolean.parseBoolean(lines.get(2));
+        openOptions = Boolean.parseBoolean(lines.get(2));
+        logging = Boolean.parseBoolean(lines.get(3));
     }
 
     private void setDefaultSettings(){
         port = 8845;
         savePath = "";
+        openOptions = true;
         logging = true;
     }
 
-    public void updateSettings(int port, String savePath, boolean logging) {
+    public void updateSettings(int port, String savePath, boolean openOptions,  boolean logging) {
         this.port = port;
         this.savePath = savePath;
+        this.openOptions = openOptions;
         this.logging = logging;
     }
 
@@ -87,6 +93,14 @@ public class Settings {
 
     public void setSavePath(String savePath) {
         this.savePath = savePath;
+    }
+
+    public boolean isOpenOptions() {
+        return openOptions;
+    }
+
+    public void setOpenOptions(boolean openOptions) {
+        this.openOptions = openOptions;
     }
 
     public boolean isLogging() {

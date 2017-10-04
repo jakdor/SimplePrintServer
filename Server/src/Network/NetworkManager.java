@@ -27,7 +27,7 @@ public class NetworkManager {
             bufferedReader = new BufferedReader(new InputStreamReader(iStream));
         }
         catch (Exception e){
-            Main.log("Error: Socket server not starting, " + e.toString());
+            Main.log("Socket server problem / application closed, " + e.toString());
         }
     }
 
