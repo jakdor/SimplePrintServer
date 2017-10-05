@@ -19,17 +19,22 @@ public class SettingsDialog extends JDialog {
     private JLabel label5;
     private JRadioButton receivedButton1;
     private JRadioButton receivedButton2;
-    private JButton buttonCancel;
 
     private Settings settings;
 
-    SettingsDialog() {
+    SettingsDialog(Settings settings) {
+        this.settings = settings;
+
         setContentPane(contentPane);
         setModal(true);
         setResizable(false);
+        setTitle("SimplePrintServer Settings");
         getRootPane().setDefaultButton(buttonOK);
 
+        loadSettings();
+
         buttonOK.addActionListener(listener -> onOK());
+        choosePathButton.addActionListener(listener -> choosePath());
 
         loggingButton1.addActionListener(listener -> {
             loggingButton1.setSelected(true);
@@ -51,28 +56,88 @@ public class SettingsDialog extends JDialog {
     }
 
     private void onOK() {
-        dispose();
         updateSettings();
+        dispose();
+    }
+
+    private void choosePath(){
+        JFileChooser chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new java.io.File(settings.getSavePath()));
+        chooser.setDialogTitle("Choose save folder");
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+        chooser.setAcceptAllFileFilterUsed(false);
+
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            filePathField.setText(chooser.getSelectedFile().toString());
+        }
     }
 
     private void updateSettings(){
-        int port = Integer.parseInt(serverPortField.getText());
-        String savePath = filePathField.getText();
-        boolean logging = loggingButton1.isSelected();
-        boolean openOptions = receivedButton1.isSelected();
+        int port = settings.getPort();
+        String savePath = settings.getSavePath();
+        boolean logging = settings.isLogging();
+        boolean openOptions = settings.isOpenOptions();
 
-        if(port <= 0){
-            port = 8845;
+        try {
+            port = Integer.parseInt(serverPortField.getText());
+            if(port < 0){
+                port = settings.getPort();
+            }
+        }
+        catch (Exception e){
+            Main.log("Invalid port, " + e.toString());
         }
 
-        //todo validate
+        try {
+            savePath = filePathField.getText();
+        }
+        catch (Exception e){
+            Main.log("Invalid save path, " + e.toString());
+        }
+
+        try {
+            logging = loggingButton1.isSelected();
+        }
+        catch (Exception e){
+            Main.log("Invalid logging option, " + e.toString());
+        }
+
+        try {
+            openOptions = receivedButton1.isSelected();
+        }
+        catch (Exception e){
+            Main.log("Invalid open option, " + e.toString());
+        }
+
         settings.updateSettings(port, savePath, openOptions, logging);
+        settings.saveSettings();
     }
 
-    void start(Utils.Settings settings){
-        this.settings = settings;
+    private void loadSettings(){
+        filePathField.setText(settings.getSavePath());
+        serverPortField.setText(Integer.toString(settings.getPort()));
+        if(settings.isOpenOptions()){
+            receivedButton1.setSelected(true);
+            receivedButton2.setSelected(false);
+        }
+        else {
+            receivedButton1.setSelected(false);
+            receivedButton2.setSelected(true);
+        }
 
-        SettingsDialog dialog = new SettingsDialog();
+        if(settings.isLogging()){
+            loggingButton1.setSelected(true);
+            loggingButton2.setSelected(false);
+        }
+        else {
+            loggingButton1.setSelected(false);
+            loggingButton2.setSelected(true);
+        }
+    }
+
+    void start(){
+        SettingsDialog dialog = new SettingsDialog(settings);
         dialog.setSize(450, 250);
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);

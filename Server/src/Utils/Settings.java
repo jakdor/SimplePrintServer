@@ -66,8 +66,17 @@ public class Settings {
     }
 
     private void setDefaultSettings(){
+        String osName = System.getProperty("os.name");
+        String osNameMatch = osName.toLowerCase();
+
+        if(osNameMatch.contains("windows")) {
+            savePath = System.getProperty("user.home") + "/Desktop";
+        }
+        else {
+            savePath = System.getProperty("user.home");
+        }
+
         port = 8845;
-        savePath = "";
         openOptions = true;
         logging = true;
     }

@@ -11,6 +11,7 @@ public class About extends JDialog {
         setContentPane(contentPane);
         setModal(true);
         setResizable(false);
+        setTitle("About SimplePrintServer");
         getRootPane().setDefaultButton(buttonOK);
 
         buttonOK.addActionListener(listener -> onOK());

@@ -21,7 +21,7 @@ public class Main
     {
         logger = setUpLogger();
 
-        settings = new Settings("SPSSetting");
+        settings = new Settings(getSettingsPath() + ".SPSSetting");
         settings.readSettings();
 
         setupSystemTray();
@@ -61,8 +61,8 @@ public class Main
 
         settingsItem.addActionListener(listener -> {
             Runnable runnable = () -> {
-                SettingsDialog settingsDialog = new SettingsDialog();
-                settingsDialog.start(settings);
+                SettingsDialog settingsDialog = new SettingsDialog(settings);
+                settingsDialog.start();
             };
             new Thread(runnable).run();
         });
@@ -137,5 +137,23 @@ public class Main
         if(settings.isLogging()){
             logger.info(msg);
         }
+    }
+
+    private static String getSettingsPath(){
+        String osName = System.getProperty("os.name");
+        String osNameMatch = osName.toLowerCase();
+        String path;
+
+        if(osNameMatch.contains("linux")) {
+            path = System.getProperty("user.home");
+        }
+        else if(osNameMatch.contains("windows")) {
+            path = System.getenv("LOCALAPPDATA") + "/SPServer";
+        }
+        else {
+            path = System.getProperty("user.home");
+        }
+
+        return path + "/";
     }
 }
