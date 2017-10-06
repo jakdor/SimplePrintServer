@@ -3,22 +3,24 @@ package Server;
 import Utils.Settings;
 
 import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class SettingsDialog extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JTextField filePathField;
-    private JLabel label1;
     private JButton choosePathButton;
-    private JLabel label2;
     private JTextField serverPortField;
-    private JLabel label4;
-    private JLabel label3;
     private JRadioButton loggingButton1;
     private JRadioButton loggingButton2;
-    private JLabel label5;
     private JRadioButton receivedButton1;
     private JRadioButton receivedButton2;
+    private JLabel label1;
+    private JLabel label2;
+    private JLabel label4;
+    private JLabel label3;
+    private JLabel label5;
 
     private Settings settings;
 
@@ -30,6 +32,15 @@ public class SettingsDialog extends JDialog {
         setResizable(false);
         setTitle("SimplePrintServer Settings");
         getRootPane().setDefaultButton(buttonOK);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent windowEvent) {
+                Main.settingsDialogClosed();
+                super.windowClosed(windowEvent);
+            }
+        });
 
         loadSettings();
 
@@ -57,6 +68,7 @@ public class SettingsDialog extends JDialog {
 
     private void onOK() {
         updateSettings();
+        Main.settingsDialogClosed();
         dispose();
     }
 

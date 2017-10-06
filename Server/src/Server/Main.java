@@ -17,6 +17,9 @@ public class Main
     private static NetworkManager networkManager;
     private static Settings settings;
 
+    private static boolean settingsOpenLock = false;
+    private static boolean aboutOpenLock = false;
+
     public static void main(String[] args) throws Exception
     {
         logger = setUpLogger();
@@ -60,19 +63,27 @@ public class Main
         MenuItem exitItem = new MenuItem("Exit");
 
         settingsItem.addActionListener(listener -> {
-            Runnable runnable = () -> {
-                SettingsDialog settingsDialog = new SettingsDialog(settings);
-                settingsDialog.start();
-            };
-            new Thread(runnable).run();
+            if (!settingsOpenLock) {
+                Runnable runnable = () -> {
+                    SettingsDialog settingsDialog = new SettingsDialog(settings);
+                    settingsDialog.start();
+                };
+
+                settingsOpenLock = true;
+                new Thread(runnable).run();
+            }
         });
 
         aboutItem.addActionListener(listener -> {
-            Runnable runnable = () -> {
-                About about = new About();
-                about.start();
-            };
-            new Thread(runnable).run();
+            if(!aboutOpenLock) {
+                Runnable runnable = () -> {
+                    About about = new About();
+                    about.start();
+                };
+
+                aboutOpenLock = true;
+                new Thread(runnable).run();
+            }
         });
 
         exitItem.addActionListener(listener ->{
@@ -155,5 +166,13 @@ public class Main
         }
 
         return path + "/";
+    }
+
+    static void settingsDialogClosed(){
+        Main.settingsOpenLock = false;
+    }
+
+    static void aboutDialogClosed(){
+        Main.aboutOpenLock = false;
     }
 }

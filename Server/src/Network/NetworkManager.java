@@ -12,6 +12,7 @@ public class NetworkManager {
     private ServerSocket serverSocket;
     private PrintWriter printWriter;
     private BufferedReader bufferedReader;
+    private boolean connected = false;
 
     public void startServer(int port){
         this.port = port;
@@ -43,12 +44,19 @@ public class NetworkManager {
     public String readMessage(){
         String receiveMessage;
         try {
-            if((receiveMessage = bufferedReader.readLine()) != null){
+            receiveMessage = bufferedReader.readLine();
+            if(receiveMessage != null){
+                connected = true;
                 System.out.println(receiveMessage);
                 if(receiveMessage.equals("@reboot")){
                     shutdownServer();
                     startServer(this.port);
                 }
+            }
+            else if(connected){
+                connected = false;
+                shutdownServer();
+                startServer(this.port);
             }
         }
         catch (Exception e){
