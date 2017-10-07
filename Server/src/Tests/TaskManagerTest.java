@@ -3,11 +3,14 @@ package Tests;
 import Network.TaskManager;
 import org.junit.Assert;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public class TaskManagerTest {
 
     private TaskManager taskManager;
     private final String testStr = "Command here#|#1#!#FileName.pdf#@#File here";
-    private final String testSavePath = "";
+    private final String testSavePath = "out";
 
     @org.junit.Before
     public void setUp() throws Exception {
@@ -23,4 +26,10 @@ public class TaskManagerTest {
         Assert.assertEquals(taskManager.getMode(), 1);
     }
 
+    @org.junit.Test
+    public void saveTest() throws Exception {
+        taskManager.saveFile();
+        byte[] file = Files.readAllBytes(Paths.get("out/" + taskManager.getFileName()));
+        Assert.assertEquals(new String(file), "File here");
+    }
 }

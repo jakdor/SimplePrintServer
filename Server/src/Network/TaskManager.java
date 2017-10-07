@@ -37,12 +37,32 @@ public class TaskManager {
     }
 
     public void saveFile(){
+        if(fileStr.isEmpty()){
+            return;
+        }
+
+        String path;
+
+        if(savePath.isEmpty()){
+            path = fileName;
+        }
+        else {
+            path = savePath;
+            if(!savePath.endsWith("/")){
+                path += "/";
+            }
+            path += fileName;
+        }
+
         try{
             if(mode == 0){
-                File temp = File.createTempFile("temp-file-name", ".tmp");
+                File temp = File.createTempFile("TempFile", ".tmp");
+                String tempPath = temp.getAbsolutePath();
+                Files.write(Paths.get(tempPath), fileStr.getBytes());
+                temp.deleteOnExit();
             }
             else {
-                Files.write(Paths.get(savePath), fileStr.getBytes());
+                Files.write(Paths.get(path), fileStr.getBytes());
             }
         }
         catch (Exception e){
@@ -51,7 +71,38 @@ public class TaskManager {
     }
 
     public void execute(){
+        switch (mode){
+            case 0: //print temp file
+                lunchCommand(command);
+                break;
+            case 1: //open file
+                lunchCommand(command);
+                break;
+            case 2: //received file, let user decide
+                break;
+        }
+    }
 
+    private void lunchCommand(String command){
+        String osName = System.getProperty("os.name");
+        String osNameMatch = osName.toLowerCase();
+        ProcessBuilder builder;
+
+        if(osNameMatch.contains("windows")) {
+            builder = new ProcessBuilder("cmd.exe", "/c", command);
+        }
+        else {
+            builder = new ProcessBuilder(command);
+        }
+
+        builder.redirectErrorStream(true);
+
+        try {
+            Process p = builder.start();
+        }
+        catch (Exception e){
+            Main.log("Unable to lunch command, " + e.toString());
+        }
     }
 
     public String getCommand() {
