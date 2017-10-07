@@ -1,6 +1,7 @@
 package Server;
 
 import Network.NetworkManager;
+import Network.TaskManager;
 import Utils.Settings;
 
 import javax.imageio.ImageIO;
@@ -41,7 +42,10 @@ public class Main
                 System.out.println("Error: unable to skip 10ms, " + e.toString());
             }
 
-            networkManager.readMessage();
+            String received = networkManager.readMessage();
+            TaskManager taskManager = new TaskManager(settings.getSavePath(), received);
+            taskManager.parse();
+            taskManager.execute();
         }
 
         System.exit(0);
@@ -105,7 +109,7 @@ public class Main
                 tray.add(trayIcon);
             }
         } catch (AWTException e) {
-            log("TrayIcon could not be added");
+            log("TrayIcon could not be added, " + e.toString());
         }
     }
 
