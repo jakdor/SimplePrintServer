@@ -24,7 +24,7 @@ public class SettingsDialog extends JDialog {
 
     private Settings settings;
 
-    SettingsDialog(Settings settings) {
+    private SettingsDialog(Settings settings) {
         this.settings = settings;
 
         setContentPane(contentPane);
@@ -148,7 +148,7 @@ public class SettingsDialog extends JDialog {
         }
     }
 
-    void start(){
+    static void start(Settings settings){
         SettingsDialog dialog = new SettingsDialog(settings);
         dialog.setSize(450, 250);
         dialog.setLocationRelativeTo(null);

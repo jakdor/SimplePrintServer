@@ -9,7 +9,7 @@ public class About extends JDialog {
     private JButton buttonOK;
     private JTextArea aboutInfoStuffTextArea;
 
-    About() {
+    private About() {
         setContentPane(contentPane);
         setModal(true);
         setResizable(false);
@@ -33,7 +33,7 @@ public class About extends JDialog {
         dispose();
     }
 
-    void start() {
+    static void start() {
         About dialog = new About();
         dialog.setSize(350,200);
         dialog.setLocationRelativeTo(null);

@@ -1,6 +1,7 @@
 package Network;
 
 import Server.Main;
+import Server.ReceivedDialog;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -10,6 +11,7 @@ public class TaskManager {
 
     private String savePath;
     private String received;
+    private String tempFilePath = "";
 
     private String command;
     private String fileStr;
@@ -57,8 +59,8 @@ public class TaskManager {
         try{
             if(mode == 0){
                 File temp = File.createTempFile("TempFile", ".tmp");
-                String tempPath = temp.getAbsolutePath();
-                Files.write(Paths.get(tempPath), fileStr.getBytes());
+                tempFilePath = temp.getAbsolutePath();
+                Files.write(Paths.get(tempFilePath), fileStr.getBytes());
                 temp.deleteOnExit();
             }
             else {
@@ -71,38 +73,57 @@ public class TaskManager {
     }
 
     public void execute(){
-        switch (mode){
-            case 0: //print temp file
-                lunchCommand(command);
-                break;
-            case 1: //open file
-                lunchCommand(command);
-                break;
-            case 2: //received file, let user decide
-                break;
-        }
+        Runnable runnable = () -> {
+            switch (mode) {
+                case 0: //print temp file
+                    lunchCommand(command);
+                    break;
+                case 1: //open file
+                    lunchCommand(command);
+                    break;
+                case 2: //received file, let user decide
+                    ReceivedDialog.start(fileName, savePath);
+                    break;
+            }
+        };
+        new Thread(runnable).run();
     }
 
-    private void lunchCommand(String command){
+    private boolean lunchCommand(String command){
+        boolean result = true;
+
         String osName = System.getProperty("os.name");
         String osNameMatch = osName.toLowerCase();
         ProcessBuilder builder;
 
         if(osNameMatch.contains("windows")) {
             builder = new ProcessBuilder("cmd.exe", "/c", command);
+            builder.redirectErrorStream(true);
+
+            try {
+                builder.start();
+            }
+            catch (Exception e){
+                Main.log("Unable to lunch command, " + e.toString());
+                result = false;
+            }
         }
         else {
-            builder = new ProcessBuilder(command);
+            try {
+                Process process = Runtime.getRuntime().exec(command);
+                int exitCode = process.waitFor();
+                if (exitCode != 0) {
+                    Main.log("wrong command");
+                    result = false;
+                }
+            }
+            catch (Exception e){
+                Main.log("Unable to lunch command, " + e.toString());
+                result = false;
+            }
         }
 
-        builder.redirectErrorStream(true);
-
-        try {
-            Process p = builder.start();
-        }
-        catch (Exception e){
-            Main.log("Unable to lunch command, " + e.toString());
-        }
+        return result;
     }
 
     public String getCommand() {
@@ -119,5 +140,9 @@ public class TaskManager {
 
     public String getFileName() {
         return fileName;
+    }
+
+    public String getTempFilePath() {
+        return tempFilePath;
     }
 }

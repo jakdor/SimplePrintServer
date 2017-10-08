@@ -17,6 +17,7 @@ public class Main
 
     private static NetworkManager networkManager;
     private static Settings settings;
+    private static boolean loggerEnabled = false;
 
     private static boolean settingsOpenLock = false;
     private static boolean aboutOpenLock = false;
@@ -27,6 +28,7 @@ public class Main
 
         settings = new Settings(getSettingsPath() + ".SPSSetting");
         settings.readSettings();
+        loggerEnabled = settings.isLogging();
 
         setupSystemTray();
 
@@ -45,6 +47,7 @@ public class Main
             String received = networkManager.readMessage();
             TaskManager taskManager = new TaskManager(settings.getSavePath(), received);
             taskManager.parse();
+            taskManager.saveFile();
             taskManager.execute();
         }
 
@@ -68,10 +71,7 @@ public class Main
 
         settingsItem.addActionListener(listener -> {
             if (!settingsOpenLock) {
-                Runnable runnable = () -> {
-                    SettingsDialog settingsDialog = new SettingsDialog(settings);
-                    settingsDialog.start();
-                };
+                Runnable runnable = () -> SettingsDialog.start(settings);
 
                 settingsOpenLock = true;
                 new Thread(runnable).run();
@@ -80,10 +80,7 @@ public class Main
 
         aboutItem.addActionListener(listener -> {
             if(!aboutOpenLock) {
-                Runnable runnable = () -> {
-                    About about = new About();
-                    about.start();
-                };
+                Runnable runnable = About::start;
 
                 aboutOpenLock = true;
                 new Thread(runnable).run();
@@ -149,7 +146,7 @@ public class Main
     }
 
     public static void log(String msg){
-        if(settings.isLogging()){
+        if(loggerEnabled && logger != null){
             logger.info(msg);
         }
     }
