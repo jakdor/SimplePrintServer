@@ -1,8 +1,10 @@
 package Network;
 
+import Server.ErrorDialog;
 import Server.Main;
 import Server.ReceivedDialog;
 
+import java.awt.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -76,10 +78,14 @@ public class TaskManager {
         Runnable runnable = () -> {
             switch (mode) {
                 case 0: //print temp file
-                    lunchCommand(command);
+                    if(!lunchCommand(command)){
+                        ErrorDialog.show("Can't lunch print task, try sending file");
+                    }
                     break;
                 case 1: //open file
-                    lunchCommand(command);
+                    if(!openFile()){
+                        ErrorDialog.show("Can't open received file, something went wrong");
+                    }
                     break;
                 case 2: //received file, let user decide
                     ReceivedDialog.start(fileName, savePath);
@@ -124,6 +130,24 @@ public class TaskManager {
         }
 
         return result;
+    }
+
+    private boolean openFile(){
+        try {
+            String path = "";
+            if(!savePath.isEmpty()){
+                path = savePath + "/";
+            }
+            path += fileName;
+
+            Desktop.getDesktop().open(new File(path));
+        }
+        catch (Exception e){
+            Main.log("Unable to open folder, " + e.toString());
+            return false;
+        }
+
+        return true;
     }
 
     public String getCommand() {

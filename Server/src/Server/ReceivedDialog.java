@@ -47,6 +47,7 @@ public class ReceivedDialog extends JDialog {
         }
         catch (Exception e){
             Main.log("Unable to open folder, " + e.toString());
+            ErrorDialog.show("Can't open received file, something went wrong");
         }
 
         dispose();
@@ -58,6 +59,7 @@ public class ReceivedDialog extends JDialog {
         }
         catch (Exception e){
             Main.log("Unable to open folder, " + e.toString());
+            ErrorDialog.show("Can't open destination folder, something went wrong");
         }
 
         dispose();
