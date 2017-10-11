@@ -14,8 +14,9 @@ public class TaskManagerTest {
 
     private TaskManager taskManager;
     private final String testStr = "ls#|#1#!#FileName.pdf#@#File here"; //<command>#|#<mode>#!#<fileName>#@#<fileBytes>
-    private final String testStr2 = "mkdir out/testEnv/testDir123#|#1#!#test.txt#@#Hello world!";
+    private final String testStr2 = "mkdir out/testEnv/testDir123#|#0#!#test.txt#@#Hello world!";
     private final String testStr3 = "ls#|#0#!#test.txt#@#It's over Anakin, I have the high ground!";
+    private final String testStr4 = "mkdir %FILE%2#|#0#!#test#@#It's over Anakin, I have the high ground!";
     private final String testSavePath = "out/testEnv";
 
     @Before
@@ -26,7 +27,7 @@ public class TaskManagerTest {
 
     @After
     public void tearDown() throws Exception {
-        String[] toBeDeleted = {"FileName.pdf", "test.txt", "testDir123"};
+        String[] toBeDeleted = {"FileName.pdf", "test.txt", "testDir123", "test2"};
 
         for(String str : toBeDeleted){
             if (Files.exists(Paths.get(testSavePath + "/" + str))) {
@@ -66,13 +67,23 @@ public class TaskManagerTest {
     }
 
     @Test
+    public void insertFilePathToCommandTest() throws Exception {
+        taskManager = new TaskManager(testSavePath, testStr4);
+        taskManager.parse();
+        taskManager.saveFile();
+        taskManager.execute();
+
+        Assert.assertTrue(Files.exists(Paths.get(testSavePath + "/" + "test2")));
+    }
+
+    @Test
     public void IntegrationTest1() throws Exception {
         taskManager = new TaskManager(testSavePath, testStr2);
         taskManager.parse();
         taskManager.saveFile();
         taskManager.execute();
 
-        byte[] file = Files.readAllBytes(Paths.get(testSavePath + "/" + taskManager.getFileName()));
+        byte[] file = Files.readAllBytes(Paths.get(taskManager.getTempFilePath()));
 
         Assert.assertEquals("Hello world!", new String(file));
         Assert.assertTrue(Files.exists(Paths.get(testSavePath + "/" + "testDir123")));

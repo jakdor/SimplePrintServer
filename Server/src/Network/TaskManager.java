@@ -40,6 +40,12 @@ public class TaskManager {
         }
     }
 
+    private void insertFileName(){
+        if(command.contains("%FILE%")){
+            command = command.replace("%FILE%", formatFinalFilePath());
+        }
+    }
+
     public void saveFile(){
         if(fileStr.isEmpty()){
             return;
@@ -76,6 +82,9 @@ public class TaskManager {
 
     public void execute(){
         Runnable runnable = () -> {
+
+            insertFileName();
+
             switch (mode) {
                 case 0: //print temp file
                     if(!lunchCommand(command)){
@@ -132,18 +141,26 @@ public class TaskManager {
         return result;
     }
 
-    private boolean openFile(){
-        try {
-            String path = "";
-            if(!savePath.isEmpty()){
-                path = savePath + "/";
-            }
-            path += fileName;
+    private String formatFinalFilePath(){
+        String path = "";
+        if(!savePath.isEmpty()){
+            path = savePath + "/";
+        }
+        path += fileName;
+        return path;
+    }
 
-            Desktop.getDesktop().open(new File(path));
+    private boolean openFile(){
+
+        if(lunchCommand(command)){
+            return true;
+        }
+
+        try {
+            Desktop.getDesktop().open(new File(formatFinalFilePath()));
         }
         catch (Exception e){
-            Main.log("Unable to open folder, " + e.toString());
+            Main.log("Unable to open folder with command nor with system launcher, " + e.toString());
             return false;
         }
 
