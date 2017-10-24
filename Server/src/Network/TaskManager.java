@@ -5,9 +5,13 @@ import Server.Main;
 import Server.ReceivedDialog;
 
 import java.awt.*;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Base64;
 
 public class TaskManager {
 
@@ -25,15 +29,21 @@ public class TaskManager {
         this.received = received;
     }
 
+    private Object deserialize(String str) throws IOException, ClassNotFoundException {
+        byte [] data = Base64.getDecoder().decode(str);
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+        Object o  = ois.readObject();
+        ois.close();
+        return o;
+    }
+
     public void parse(){
         try {
-            int separator1 = received.indexOf("#|#");
-            int separator2 = received.indexOf("#!#");
-            int separator3 = received.indexOf("#@#");
-            command = received.substring(0, separator1);
-            mode = Integer.parseInt(received.substring(separator1 + 3, separator2));
-            fileName = received.substring(separator2 + 3, separator3);
-            fileStr = received.substring(separator3 + 3, received.length());
+            Carrier carrier = (Carrier) deserialize(received);
+            command = carrier.getCommand();
+            mode = carrier.getMode();
+            fileName = carrier.getFileName();
+            fileStr = carrier.getFileStr();
         }
         catch (Exception e){
             Main.log("Error parsing received string, " + e.toString());
