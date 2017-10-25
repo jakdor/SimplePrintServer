@@ -1,12 +1,20 @@
+package Network;
+
 import java.io.*;
 import java.net.*;
+import java.util.logging.Logger;
 
-class NetworkManager {
+public class NetworkManager {
 
+    private Logger logger;
     private PrintWriter printWriter;
     private BufferedReader receiveRead;
 
-    void connect(String ConnectIP, int port){
+    public NetworkManager(Logger logger) {
+        this.logger = logger;
+    }
+
+    public void connect(String ConnectIP, int port) {
         try {
             Socket sock = new Socket(ConnectIP, port);
 
@@ -16,32 +24,32 @@ class NetworkManager {
             InputStream inputStream = sock.getInputStream();
             this.receiveRead = new BufferedReader(new InputStreamReader(inputStream));
         }
-        catch (Exception e){
-            Main.logger.info("Can't connect to server, " + e.toString());
+        catch (Exception e) {
+            logger.info("Can't connect to server, " + e.toString());
         }
     }
 
-    public String receive(){
+    public String receive() {
         try {
             String receiveMessage;
-            if ((receiveMessage = this.receiveRead.readLine()) != null){
+            if ((receiveMessage = this.receiveRead.readLine()) != null) {
                 return receiveMessage;
             }
         }
-        catch (Exception e){
-            Main.logger.info("receive() failed to read buffer, " + e.toString());
+        catch (Exception e) {
+            logger.info("receive() failed to read buffer, " + e.toString());
         }
 
         return null;
     }
 
-    void send(String input){
+    public void send(String input) {
         try {
             this.printWriter.println(input);
             this.printWriter.flush();
         }
-        catch (Exception e){
-            Main.logger.info("failed to send msg to server, " + e.toString());
+        catch (Exception e) {
+            logger.info("failed to send msg to server, " + e.toString());
         }
     }
 }

@@ -31,10 +31,10 @@ public class TaskManager {
 
     private Object deserialize(String str) throws IOException, ClassNotFoundException {
         byte [] data = Base64.getDecoder().decode(str);
-        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-        Object o  = ois.readObject();
-        ois.close();
-        return o;
+        ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(data));
+        Object object  = objectInputStream.readObject();
+        objectInputStream.close();
+        return object;
     }
 
     public void parse(){
@@ -57,7 +57,10 @@ public class TaskManager {
     }
 
     public void saveFile(){
-        if(fileStr.isEmpty()){
+        if(fileStr == null){
+            return;
+        }
+        else if(fileStr.isEmpty()){
             return;
         }
 
@@ -91,12 +94,19 @@ public class TaskManager {
     }
 
     public void execute(){
+        if(command == null){
+            return;
+        }
+        else if(command.isEmpty()){
+            return;
+        }
+
         Runnable runnable = () -> {
 
             insertFileName();
 
             switch (mode) {
-                case 0: //print temp file
+                case 0: //print temp file/lunch command
                     if(!lunchCommand(command)){
                         ErrorDialog.show("Can't lunch print task, try sending file");
                     }
