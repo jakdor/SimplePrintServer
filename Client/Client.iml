@@ -7,6 +7,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="junit:junit:4.12" level="project" />
+    <orderEntry type="library" name="junit:junit:4.12" level="application" />
+    <orderEntry type="library" name="com.j256.ormlite:ormlite-jdbc:4.31" level="project" />
+    <orderEntry type="library" name="org.xerial:sqlite-jdbc:3.20.1" level="project" />
   </component>
 </module>
