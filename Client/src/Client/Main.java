@@ -1,5 +1,6 @@
 package Client;
 
+import Commands.CommandsManager;
 import Network.Dispatcher;
 import Network.NetworkManager;
 import Utils.Settings;
@@ -14,6 +15,7 @@ public class Main extends JFrame {
 
     private static NetworkManager networkManager;
     private static Dispatcher dispatcher;
+    private static CommandsManager commandsManager;
 
     private JPanel panelMain;
     private JTextField textField1;
@@ -29,10 +31,13 @@ public class Main extends JFrame {
     }
 
     public static void main(String[] args) {
+        String path = getSettingsPath();
+
         setUpView();
         logger = setUpLogger();
-        settings = new Settings(getSettingsPath() + ".SPSClientSettings", logger);
+        settings = new Settings(path + ".SPSClientSettings", logger);
         settings.readSettings();
+        commandsManager = new CommandsManager(path, logger);
         networkManager = new NetworkManager(logger);
         networkManager.connect(settings.getIp(), settings.getPort());
         dispatcher = new Dispatcher(networkManager, logger);

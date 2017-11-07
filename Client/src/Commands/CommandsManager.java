@@ -4,8 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class CommandsManager {
@@ -15,56 +14,66 @@ public class CommandsManager {
     private String commandsSavePath = "";
     private final String FILE_NAME = ".SPSCommands";
 
-    Map<Integer, Command> commandMap = new HashMap<>();
+    List<Command> commandList = new Vector<>();
 
-    public CommandsManager(Logger logger){
+    public CommandsManager(String path, Logger logger){
         this.logger = logger;
-        commandsSavePath = getCommandsSavePath();
-    }
+        this.commandsSavePath = path;
 
-    public String getCommandsSavePath(){
-        String osName = System.getProperty("os.name");
-        String osNameMatch = osName.toLowerCase();
-        String path;
-
-        if(osNameMatch.contains("linux")) {
-            path = System.getProperty("user.home");
-        }
-        else if(osNameMatch.contains("windows")) {
-            path = System.getenv("LOCALAPPDATA") + "/SPServer";
+        if(commandsSavePath.isEmpty()){
+            commandsSavePath = FILE_NAME;
         }
         else {
-            path = System.getProperty("user.home");
+            commandsSavePath += "/" + FILE_NAME;
         }
-
-        return path + "/";
     }
 
-    public void readCommands(String path){
+    public void readCommands(){
         try {
-            FileInputStream fileInputStream = new FileInputStream(path);
+            FileInputStream fileInputStream = new FileInputStream(commandsSavePath);
             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-            commandMap = (Map<Integer, Command>) objectInputStream.readObject();
+            commandList = (Vector<Command>) objectInputStream.readObject();
             objectInputStream.close();
         }
         catch (Exception e){
-            logger.info("Error while reading commandsMap, " + e.toString());
+            logger.info("Error while reading commandsList, " + e.toString());
         }
     }
 
-    public void writeCommands(String path){
+    public void writeCommands(){
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream(path);
+            FileOutputStream fileOutputStream = new FileOutputStream(commandsSavePath);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-            objectOutputStream.writeObject(commandMap);
+            objectOutputStream.writeObject(commandList);
             objectOutputStream.close();
         }
         catch (Exception e){
-            logger.info("Error while saving commandsMap, " + e.toString());
+            logger.info("Error while saving commandsList, " + e.toString());
         }
     }
 
-    public Map<Integer, Command> getCommandMap() {
-        return commandMap;
+    public List<Command> getCommandList() {
+        return commandList;
     }
+
+    public boolean add(Command command) {
+        return commandList.add(command);
+    }
+
+    public int size(){
+        return commandList.size();
+    }
+
+    public Command get(int i) {
+        return commandList.get(i);
+    }
+
+    public Command set(int i, Command command) {
+        return commandList.set(i, command);
+    }
+
+    public Command remove(int i) {
+        return commandList.remove(i);
+    }
+
 }
