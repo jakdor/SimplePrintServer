@@ -1,5 +1,7 @@
-package Commands;
+package Tests;
 
+import Commands.Command;
+import Commands.CommandsManager;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
