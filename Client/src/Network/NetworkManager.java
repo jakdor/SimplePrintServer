@@ -9,12 +9,13 @@ public class NetworkManager {
     private Logger logger;
     private PrintWriter printWriter;
     private BufferedReader receiveRead;
+    private Socket sock;
 
     public NetworkManager(Logger logger) {
         this.logger = logger;
     }
 
-    public void connect(String ConnectIP, int port) {
+    public boolean connect(String ConnectIP, int port) {
         try {
             Socket sock = new Socket(ConnectIP, port);
 
@@ -26,7 +27,10 @@ public class NetworkManager {
         }
         catch (Exception e) {
             logger.info("Can't connect to server, " + e.toString());
+            return false;
         }
+
+        return true;
     }
 
     public String receive() {
@@ -40,7 +44,7 @@ public class NetworkManager {
             logger.info("receive() failed to read buffer, " + e.toString());
         }
 
-        return null;
+        return "ServerError";
     }
 
     public void send(String input) {
@@ -50,6 +54,17 @@ public class NetworkManager {
         }
         catch (Exception e) {
             logger.info("failed to send msg to server, " + e.toString());
+        }
+    }
+
+    public void disconnect(){
+        try {
+            if (sock != null){
+                sock.close();
+            }
+        }
+        catch (Exception e){
+            logger.info("unable to disconnect/no active connection, " + e.toString());
         }
     }
 }

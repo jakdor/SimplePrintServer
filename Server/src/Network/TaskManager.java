@@ -39,11 +39,15 @@ public class TaskManager {
 
     public void parse(){
         try {
-            Carrier carrier = (Carrier) deserialize(received);
-            command = carrier.getCommand();
-            mode = carrier.getMode();
-            fileName = carrier.getFileName();
-            fileStr = carrier.getFileStr();
+            if(received != null) {
+                if(!received.isEmpty()) {
+                    Carrier carrier = (Carrier) deserialize(received);
+                    command = carrier.getCommand();
+                    mode = carrier.getMode();
+                    fileName = carrier.getFileName();
+                    fileStr = carrier.getFileStr();
+                }
+            }
         }
         catch (Exception e){
             Main.log("Error parsing received string, " + e.toString());

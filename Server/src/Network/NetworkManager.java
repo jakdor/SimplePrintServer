@@ -34,6 +34,8 @@ public class NetworkManager {
 
     public void shutdownServer(){
         try {
+            send("ServerShutdown");
+            Thread.sleep(10);
             serverSocket.close();
         }
         catch (Exception e){
@@ -65,5 +67,15 @@ public class NetworkManager {
         }
 
         return receiveMessage;
+    }
+
+    public void send(String input) {
+        try {
+            this.printWriter.println(input);
+            this.printWriter.flush();
+        }
+        catch (Exception e) {
+            Main.log("failed to send msg to client, " + e.toString());
+        }
     }
 }

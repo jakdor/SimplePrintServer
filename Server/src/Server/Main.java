@@ -89,7 +89,7 @@ public class Main
 
         exitItem.addActionListener(listener ->{
             networkManager.shutdownServer();
-            mainLoop = false;
+            System.exit(0);
         });
 
         //Add components to pop-up menu

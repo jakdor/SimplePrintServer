@@ -22,11 +22,27 @@ public class Main extends JFrame {
     private JPanel panelMain;
     private JTextField filePathField;
     private JButton pathButton;
+    private JTextField serverIpField;
+    private JTextField serverPortField;
+    private JButton connectButton;
+    private JLabel serverStatusLabel;
+
+    private final String CONNECTION_TRY = "<html>Status: <font color='orange'>...</font></html>";
+    private final String CONNECTION_OK = "<html>Status: <font color='green'>connected</font></html>";
+    private final String CONNECTION_FAIL = "<html>Status: <font color='red'>no connection</font></html>";
+    private final String CONNECTION_CLOSED = "<html>Status: <font color='red'>server shutdown</font></html>";
 
     public Main(String initPath) {
+
         pathButton.addActionListener(actionEvent -> choosePath());
+        connectButton.addActionListener(actionEvent -> reconnect());
 
         filePathField.setText(initPath);
+
+        serverIpField.setText(settings.getIp());
+        serverPortField.setText(Integer.toString(settings.getPort()));
+
+        connect();
     }
 
     public static void main(String[] args) {
@@ -37,7 +53,6 @@ public class Main extends JFrame {
         settings.readSettings();
         commandsManager = new CommandsManager(path, logger);
         networkManager = new NetworkManager(logger);
-        networkManager.connect(settings.getIp(), settings.getPort());
         dispatcher = new Dispatcher(networkManager, logger);
 
         EventQueue.invokeLater(Main::setUpView);
@@ -100,9 +115,61 @@ public class Main extends JFrame {
             String dir = jFileChooser.getCurrentDirectory().toString();
 
             filePathField.setText(path);
+
+            //todo move to validation/send function
             settings.setLastPath(path);
             settings.setLastPathDir(dir);
             settings.saveSettings();
         }
+    }
+
+    private void connect(){
+        new Thread(() -> {
+
+            if (networkManager.connect(settings.getIp(), settings.getPort())) {
+                serverStatusLabel.setText(CONNECTION_OK);
+
+                String serverStatus = networkManager.receive();
+                if(serverStatus.equals("ServerShutdown")){
+                    serverStatusLabel.setText(CONNECTION_CLOSED);
+                    networkManager.disconnect();
+                }
+                else if(serverStatus.equals("ServerError")){
+                    serverStatusLabel.setText(CONNECTION_FAIL);
+                    networkManager.disconnect();
+                }
+            }
+            else {
+                serverStatusLabel.setText(CONNECTION_FAIL);
+            }
+
+        }).start();
+    }
+
+    private void reconnect(){
+        serverStatusLabel.setText(CONNECTION_TRY);
+        new Thread(() ->{
+
+            if(!serverIpField.getText().isEmpty() && !serverPortField.getText().isEmpty()){
+                try {
+                    settings.setIp(serverIpField.getText());
+                    settings.setPort(Integer.parseInt(serverPortField.getText()));
+                    settings.saveSettings();
+
+                    networkManager.disconnect();
+                    connect();
+                }
+                catch (Exception e){
+                    logger.info("error updating server ip/port, " + e.toString());
+                }
+            }
+
+        }).start();
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        networkManager.send("@reboot");
     }
 }
