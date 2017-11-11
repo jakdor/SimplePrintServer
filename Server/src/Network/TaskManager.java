@@ -121,7 +121,7 @@ public class TaskManager {
                     }
                     break;
                 case 2: //received file, let user decide
-                    ReceivedDialog.start(fileName, savePath);
+                    EventQueue.invokeLater(() ->  ReceivedDialog.start(fileName, savePath));
                     break;
             }
         };

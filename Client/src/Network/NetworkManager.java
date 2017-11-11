@@ -17,7 +17,7 @@ public class NetworkManager {
 
     public boolean connect(String ConnectIP, int port) {
         try {
-            Socket sock = new Socket(ConnectIP, port);
+            sock = new Socket(ConnectIP, port);
 
             OutputStream outputStream = sock.getOutputStream();
             this.printWriter = new PrintWriter(outputStream, true);

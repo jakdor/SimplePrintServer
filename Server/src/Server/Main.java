@@ -71,19 +71,17 @@ public class Main
 
         settingsItem.addActionListener(listener -> {
             if (!settingsOpenLock) {
-                Runnable runnable = () -> SettingsDialog.start(settings);
 
                 settingsOpenLock = true;
-                new Thread(runnable).run();
+                EventQueue.invokeLater(() -> SettingsDialog.start(settings));
             }
         });
 
         aboutItem.addActionListener(listener -> {
             if(!aboutOpenLock) {
-                Runnable runnable = About::start;
 
                 aboutOpenLock = true;
-                new Thread(runnable).run();
+                EventQueue.invokeLater(About::start);
             }
         });
 

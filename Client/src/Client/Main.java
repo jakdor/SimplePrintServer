@@ -30,6 +30,7 @@ public class Main extends JFrame {
     private final String CONNECTION_TRY = "<html>Status: <font color='orange'>...</font></html>";
     private final String CONNECTION_OK = "<html>Status: <font color='green'>connected</font></html>";
     private final String CONNECTION_FAIL = "<html>Status: <font color='red'>no connection</font></html>";
+    private final String CONNECTION_INVALID = "<html>Status: <font color='red'>invalid ip/port</font></html>";
     private final String CONNECTION_CLOSED = "<html>Status: <font color='red'>server shutdown</font></html>";
 
     public Main(String initPath) {
@@ -56,6 +57,10 @@ public class Main extends JFrame {
         dispatcher = new Dispatcher(networkManager, logger);
 
         EventQueue.invokeLater(Main::setUpView);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() ->{
+            networkManager.send("@reboot");
+        }));
     }
 
     private static void setUpView() {
@@ -151,11 +156,26 @@ public class Main extends JFrame {
         new Thread(() ->{
 
             if(!serverIpField.getText().isEmpty() && !serverPortField.getText().isEmpty()){
+
+                String ip;
+                int port;
+
                 try {
-                    settings.setIp(serverIpField.getText());
-                    settings.setPort(Integer.parseInt(serverPortField.getText()));
+                    ip = serverIpField.getText();
+                    port = Integer.parseInt(serverPortField.getText());
+                }
+                catch (Exception e){
+                    logger.info("invalid ip/port, " + e.toString());
+                    serverStatusLabel.setText(CONNECTION_INVALID);
+                    return;
+                }
+
+                try {
+                    settings.setIp(ip);
+                    settings.setPort(port);
                     settings.saveSettings();
 
+                    networkManager.send("@reboot");
                     networkManager.disconnect();
                     connect();
                 }
