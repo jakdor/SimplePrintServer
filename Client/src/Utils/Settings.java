@@ -15,6 +15,8 @@ public class Settings {
 
     private int port;
     private String ip;
+    private String lastPath;
+    private String lastPathDir;
 
     public Settings(String settingsFileName, Logger logger){
         this.logger = logger;
@@ -47,6 +49,8 @@ public class Settings {
         lines.removeAllElements();
         lines.add(Integer.toString(port));
         lines.add(ip);
+        lines.add(lastPath);
+        lines.add(lastPathDir);
 
         try {
             Files.write(fileName, lines);
@@ -59,16 +63,22 @@ public class Settings {
     private void parseSettings(){
         port = Integer.parseInt(lines.get(0));
         ip = lines.get(1);
+        lastPath = lines.get(2);
+        lastPathDir = lines.get(3);
     }
 
     private void setDefaultSettings(){
         ip = "127.0.0.1";
         port = 8845;
+        lastPath = "";
+        lastPathDir = "";
     }
 
-    public void updateSettings(int port, String ip) {
+    public void updateSettings(int port, String ip, String lastPath, String lastPathDir) {
         this.port = port;
         this.ip = ip;
+        this.lastPath = lastPath;
+        this.lastPathDir = lastPathDir;
     }
 
     public int getPort() {
@@ -85,5 +95,21 @@ public class Settings {
 
     public void setIp(String savePath) {
         this.ip = savePath;
+    }
+
+    public String getLastPath() {
+        return lastPath;
+    }
+
+    public void setLastPath(String lastPath) {
+        this.lastPath = lastPath;
+    }
+
+    public String getLastPathDir() {
+        return lastPathDir;
+    }
+
+    public void setLastPathDir(String lastPathDir) {
+        this.lastPathDir = lastPathDir;
     }
 }

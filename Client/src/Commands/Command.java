@@ -9,7 +9,6 @@ public class Command implements Serializable {
     private String openCommand;
 
     Command(){
-
     }
 
     public Command(String name, String printCommand, String openCommand) {

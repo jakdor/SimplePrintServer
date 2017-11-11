@@ -2,10 +2,7 @@ package Tests;
 
 import Commands.Command;
 import Commands.CommandsManager;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -16,15 +13,13 @@ import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-import static org.junit.Assert.*;
-
 public class CommandsManagerTest {
 
     private CommandsManager commandsManager;
     private Logger logger;
 
-    private static String testPath = "out/testEnv";
-    private static String deletePath = "out/testEnv/.SPSCommands";
+    private final String TEST_PATH = "out/testEnv";
+    private final String DELETE_PATH = "out/testEnv/.SPSCommands";
 
     private Command command1 = new Command("dupa1", "test1", "test1v2");
 
@@ -32,17 +27,17 @@ public class CommandsManagerTest {
     public void setUp() throws Exception {
         logger = setUpLogger();
 
-        commandsManager = new CommandsManager(testPath, logger);
+        commandsManager = new CommandsManager(TEST_PATH, logger);
         commandsManager.add(command1);
         commandsManager.add(command1);
     }
 
-    @AfterClass
-    public static void tearDown() throws Exception {
-        if (Files.exists(Paths.get(deletePath))) {
-            File file = new File(deletePath);
+    @After
+    public void tearDown() throws Exception {
+        if (Files.exists(Paths.get(DELETE_PATH))) {
+            File file = new File(DELETE_PATH);
             if(!file.delete()){
-                throw new Exception("Unable to delete " + deletePath);
+                throw new Exception("Unable to delete " + DELETE_PATH);
             }
         }
     }
@@ -50,7 +45,7 @@ public class CommandsManagerTest {
     @Test
     public void saveTest() throws Exception {
         commandsManager.writeCommands();
-        CommandsManager testCommandManager = new CommandsManager(testPath, logger);
+        CommandsManager testCommandManager = new CommandsManager(TEST_PATH, logger);
         testCommandManager.readCommands();
 
         Assert.assertEquals(2, testCommandManager.size());

@@ -6,6 +6,8 @@ import Network.NetworkManager;
 import Utils.Settings;
 
 import javax.swing.*;
+import java.awt.*;
+import java.io.File;
 import java.util.logging.*;
 
 public class Main extends JFrame {
@@ -18,22 +20,18 @@ public class Main extends JFrame {
     private static CommandsManager commandsManager;
 
     private JPanel panelMain;
-    private JTextField textField1;
-    private JButton button1;
+    private JTextField filePathField;
+    private JButton pathButton;
 
-    public Main() {
-        button1.addActionListener(actionEvent -> {
-            if (!textField1.getText().isEmpty()) {
-                //test - send file from path entered in textField
-                dispatcher.send("ls", 1, "test", textField1.getText());
-            }
-        });
+    public Main(String initPath) {
+        pathButton.addActionListener(actionEvent -> choosePath());
+
+        filePathField.setText(initPath);
     }
 
     public static void main(String[] args) {
         String path = getSettingsPath();
 
-        setUpView();
         logger = setUpLogger();
         settings = new Settings(path + ".SPSClientSettings", logger);
         settings.readSettings();
@@ -41,13 +39,17 @@ public class Main extends JFrame {
         networkManager = new NetworkManager(logger);
         networkManager.connect(settings.getIp(), settings.getPort());
         dispatcher = new Dispatcher(networkManager, logger);
+
+        EventQueue.invokeLater(Main::setUpView);
     }
 
     private static void setUpView() {
-        JFrame frame = new JFrame("Simple Print Server");
-        frame.setContentPane(new Main().panelMain);
+        JFrame frame = new JFrame("Simple Print Server - client");
+        frame.setContentPane(new Main(settings.getLastPath()).panelMain);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(650, 450);
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(true);
         frame.setVisible(true);
     }
 
@@ -86,5 +88,21 @@ public class Main extends JFrame {
         }
 
         return path + "/";
+    }
+
+    private void choosePath(){
+        JFileChooser jFileChooser = new JFileChooser();
+        jFileChooser.setCurrentDirectory(new File(settings.getLastPathDir()));
+        int returnVal = jFileChooser.showOpenDialog(Main.this);
+
+        if(returnVal == JFileChooser.APPROVE_OPTION){
+            String path = jFileChooser.getSelectedFile().toString();
+            String dir = jFileChooser.getCurrentDirectory().toString();
+
+            filePathField.setText(path);
+            settings.setLastPath(path);
+            settings.setLastPathDir(dir);
+            settings.saveSettings();
+        }
     }
 }

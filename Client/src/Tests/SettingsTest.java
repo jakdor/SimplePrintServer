@@ -16,7 +16,12 @@ public class SettingsTest {
     private static Logger testLogger;
 
     private Settings settings;
-    private final String settingsPath = "out/testEnv/SPSTestSettings";
+    private final String SETTINGS_PATH = "out/testEnv/SPSTestSettings";
+
+    private final String IP = "127.0.0.1";
+    private final String LAST_PATH = "dir/testStr";
+    private final String LAST_DIR = "dir";
+    private final int PORT = 6666;
 
     @BeforeClass
     public static void beforeClass(){
@@ -25,15 +30,15 @@ public class SettingsTest {
 
     @Before
     public void setUp() throws Exception {
-        settings = new Settings(settingsPath, testLogger);
+        settings = new Settings(SETTINGS_PATH, testLogger);
     }
 
     @After
     public void tearDown() throws Exception {
-        if (Files.exists(Paths.get(settingsPath))) {
-            File file = new File(settingsPath);
+        if (Files.exists(Paths.get(SETTINGS_PATH))) {
+            File file = new File(SETTINGS_PATH);
             if(!file.delete()){
-                throw new Exception("Unable to delete " + settingsPath);
+                throw new Exception("Unable to delete " + SETTINGS_PATH);
             }
         }
     }
@@ -42,30 +47,36 @@ public class SettingsTest {
     public void firstRun() throws Exception {
         settings.readSettings();
 
-        Assert.assertTrue(Files.exists(Paths.get(settingsPath)));
+        Assert.assertTrue(Files.exists(Paths.get(SETTINGS_PATH)));
         Assert.assertEquals(8845, settings.getPort());
         Assert.assertNotNull(settings.getIp());
+        Assert.assertEquals("", settings.getLastPath());
+        Assert.assertEquals("", settings.getLastPathDir());
     }
 
     @Test
     public void saveSettings() throws Exception {
-        settings.updateSettings(6666, "127.0.0.1");
+        settings.updateSettings(PORT, IP, LAST_PATH, LAST_DIR);
         settings.saveSettings();
 
         Vector<String> lines = new Vector<>();
-        Files.lines(Paths.get(settingsPath)).forEachOrdered(str -> lines.add(str));
+        Files.lines(Paths.get(SETTINGS_PATH)).forEachOrdered(str -> lines.add(str));
 
-        Assert.assertEquals(2, lines.size());
-        Assert.assertEquals("6666", lines.get(0));
-        Assert.assertEquals("127.0.0.1", lines.get(1));
+        Assert.assertEquals(4, lines.size());
+        Assert.assertEquals(Integer.toString(PORT), lines.get(0));
+        Assert.assertEquals(IP, lines.get(1));
+        Assert.assertEquals(LAST_PATH, lines.get(2));
+        Assert.assertEquals(LAST_DIR, lines.get(3));
     }
 
     @Test
     public void updateSettings() throws Exception {
-        settings.updateSettings(6666, "127.0.0.1");
+        settings.updateSettings(PORT, IP, LAST_PATH, LAST_DIR);
 
-        Assert.assertEquals(6666, settings.getPort());
-        Assert.assertEquals("127.0.0.1", settings.getIp());
+        Assert.assertEquals(PORT, settings.getPort());
+        Assert.assertEquals(IP, settings.getIp());
+        Assert.assertEquals(LAST_PATH, settings.getLastPath());
+        Assert.assertEquals(LAST_DIR, settings.getLastPathDir());
     }
 
     private static Logger setUpLogger() {
