@@ -21,15 +21,24 @@ public class CommandsManagerTest {
     private final String TEST_PATH = "out/testEnv";
     private final String DELETE_PATH = "out/testEnv/.SPSCommands";
 
-    private Command command1 = new Command("dupa1", "test1", "test1v2");
+    private Command command1 = new Command("dupa1", "test1", "test1v2", ".pdf");
+    private Command command2 = new Command("dupa2", "test2", "test2v2", ".txt");
+
+    private List<Command> testList;
 
     @Before
     public void setUp() throws Exception {
         logger = setUpLogger();
+        testList = new Vector<>();
+
+        testList.add(command1);
+        testList.add(command1);
+        testList.add(command2);
 
         commandsManager = new CommandsManager(TEST_PATH, logger);
-        commandsManager.add(command1);
-        commandsManager.add(command1);
+        commandsManager.add(testList.get(0));
+        commandsManager.add(testList.get(1));
+        commandsManager.add(testList.get(2));
     }
 
     @After
@@ -48,9 +57,16 @@ public class CommandsManagerTest {
         CommandsManager testCommandManager = new CommandsManager(TEST_PATH, logger);
         testCommandManager.readCommands();
 
-        Assert.assertEquals(2, testCommandManager.size());
+        Assert.assertEquals(testList.size(), testCommandManager.size());
+
         Assert.assertEquals("dupa1", testCommandManager.get(0).getName());
-        Assert.assertTrue(testCommandManager.get(1).equals(command1));
+        Assert.assertEquals(".pdf", testCommandManager.get(0).getFileFormat());
+        Assert.assertEquals("test1", testCommandManager.get(0).getPrintCommand());
+        Assert.assertEquals("test1v2", testCommandManager.get(0).getOpenCommand());
+
+        for(int i = 0; i < testList.size(); ++i){
+            Assert.assertTrue(testList.get(i).equals(testCommandManager.get(i)));
+        }
     }
 
     @Test
@@ -58,6 +74,12 @@ public class CommandsManagerTest {
         List<Command> testVector = commandsManager.getCommandList();
 
         Assert.assertTrue(testVector instanceof Vector);
+    }
+
+    @Test
+    public void getFirstFileFormatIndexTest() throws Exception {
+        Assert.assertEquals(0, commandsManager.getFirstFileFormatIndex(".pdf"));
+        Assert.assertEquals(2, commandsManager.getFirstFileFormatIndex(".txt"));
     }
 
     private static Logger setUpLogger() {

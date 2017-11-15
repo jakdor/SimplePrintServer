@@ -52,6 +52,15 @@ public class CommandsManager {
         }
     }
 
+    public int getFirstFileFormatIndex(String fileFormat){
+        for (Command command : commandList){
+            if(command.getFileFormat().equals(fileFormat)){
+                return commandList.indexOf(command);
+            }
+        }
+        return 0;
+    }
+
     public List<Command> getCommandList() {
         return commandList;
     }

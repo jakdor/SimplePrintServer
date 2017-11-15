@@ -26,6 +26,13 @@ public class Main extends JFrame {
     private JTextField serverPortField;
     private JButton connectButton;
     private JLabel serverStatusLabel;
+    private JComboBox configBox;
+    private JButton configEditButton;
+    private JRadioButton confButtonOpen;
+    private JRadioButton confButtonSend;
+    private JRadioButton confButtonPrint;
+    private JButton SendButton;
+    private JLabel actionStatusLabel;
 
     private final String CONNECTION_TRY = "<html>Status: <font color='orange'>...</font></html>";
     private final String CONNECTION_OK = "<html>Status: <font color='green'>connected</font></html>";
@@ -33,15 +40,23 @@ public class Main extends JFrame {
     private final String CONNECTION_INVALID = "<html>Status: <font color='red'>invalid ip/port</font></html>";
     private final String CONNECTION_CLOSED = "<html>Status: <font color='red'>server shutdown</font></html>";
 
+    private final String TASK_IDL = "No active task/idle";
+
     public Main(String initPath) {
 
         pathButton.addActionListener(actionEvent -> choosePath());
         connectButton.addActionListener(actionEvent -> reconnect());
 
+        confButtonPrint.addActionListener(actionEvent -> radioButtonOnlyOne(0));
+        confButtonOpen.addActionListener(actionEvent -> radioButtonOnlyOne(1));
+        confButtonSend.addActionListener(actionEvent -> radioButtonOnlyOne(2));
+
         filePathField.setText(initPath);
 
         serverIpField.setText(settings.getIp());
         serverPortField.setText(Integer.toString(settings.getPort()));
+
+        actionStatusLabel.setText(TASK_IDL);
 
         connect();
     }
@@ -58,16 +73,14 @@ public class Main extends JFrame {
 
         EventQueue.invokeLater(Main::setUpView);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() ->{
-            networkManager.send("@reboot");
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> networkManager.send("@reboot")));
     }
 
     private static void setUpView() {
         JFrame frame = new JFrame("Simple Print Server - client");
         frame.setContentPane(new Main(settings.getLastPath()).panelMain);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(650, 450);
+        frame.setSize(650, 260);
         frame.setLocationRelativeTo(null);
         frame.setResizable(true);
         frame.setVisible(true);
@@ -185,6 +198,30 @@ public class Main extends JFrame {
             }
 
         }).start();
+    }
+
+    private void radioButtonOnlyOne(int num){
+        switch (num){
+            case 0:
+                confButtonPrint.setSelected(true);
+                confButtonOpen.setSelected(false);
+                confButtonSend.setSelected(false);
+                break;
+            case 1:
+                confButtonPrint.setSelected(false);
+                confButtonOpen.setSelected(true);
+                confButtonSend.setSelected(false);
+                break;
+            case 2:
+                confButtonPrint.setSelected(false);
+                confButtonOpen.setSelected(false);
+                confButtonSend.setSelected(true);
+                break;
+            default:
+                confButtonPrint.setSelected(false);
+                confButtonOpen.setSelected(false);
+                confButtonSend.setSelected(false);
+        }
     }
 
     @Override
