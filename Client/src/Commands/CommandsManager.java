@@ -90,6 +90,10 @@ public class CommandsManager implements Iterable<Command> {
         return new CommandIterator();
     }
 
+    public int indexOf(Object o) {
+        return commandList.indexOf(o);
+    }
+
     class CommandIterator implements Iterator<Command> {
 
         private int index = 0;

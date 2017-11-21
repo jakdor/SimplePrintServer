@@ -5,7 +5,9 @@ import Commands.CommandComboItem;
 import Commands.CommandsManager;
 import Network.Dispatcher;
 import Network.NetworkManager;
+import Utils.Observer;
 import Utils.Settings;
+import Utils.Subject;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,6 +24,9 @@ public class Main extends JFrame {
     private static NetworkManager networkManager;
     private static Dispatcher dispatcher;
     private static CommandsManager commandsManager;
+
+    private Subject subject;
+    private ComboObserver comboObserver;
 
     private int selectedMode = -1;
 
@@ -63,6 +68,8 @@ public class Main extends JFrame {
 
         sendButton.addActionListener(actionEvent -> execute());
 
+        configEditButton.addActionListener(actionEvent -> openEditConfigDialog());
+
         filePathField.setText(initPath);
 
         serverIpField.setText(settings.getIp());
@@ -70,11 +77,12 @@ public class Main extends JFrame {
 
         actionStatusLabel.setText(TASK_IDL);
 
-        commandsManager.add(new Command("test", "ls", "xdg-open %FILE%", ".txt"));
-
         for(Command command : commandsManager) {
-            configBox.addItem(new CommandComboItem(command.getName(), 0));
+            configBox.addItem(new CommandComboItem(command.getName(), commandsManager.indexOf(command)));
         }
+
+        subject = new Subject();
+        comboObserver = new ComboObserver(subject);
 
         connect();
     }
@@ -88,6 +96,8 @@ public class Main extends JFrame {
         commandsManager = new CommandsManager(path, logger);
         networkManager = new NetworkManager(logger);
         dispatcher = new Dispatcher(networkManager, logger);
+
+        commandsManager.readCommands();
 
         EventQueue.invokeLater(Main::setUpView);
 
@@ -150,6 +160,21 @@ public class Main extends JFrame {
             String path = jFileChooser.getSelectedFile().toString();
             filePathField.setText(path);
         }
+    }
+
+    private void openEditConfigDialog(){
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                EditConfigDialog.start(commandsManager, subject);
+            }
+
+            @Override
+            protected void finalize() throws Throwable {
+                refreshComboBox();
+                super.finalize();
+            }
+        });
     }
 
     private void connect(){
@@ -273,9 +298,29 @@ public class Main extends JFrame {
         }
     }
 
+    private void refreshComboBox(){
+        configBox.removeAllItems();
+        for(Command command : commandsManager) {
+            configBox.addItem(new CommandComboItem(command.getName(), commandsManager.indexOf(command)));
+        }
+    }
+
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
         networkManager.send("@reboot");
+    }
+
+    private class ComboObserver extends Observer{
+
+        ComboObserver(Subject subject){
+            this.subject = subject;
+            this.subject.attach(this);
+        }
+
+        @Override
+        public void update() {
+            refreshComboBox();
+        }
     }
 }
