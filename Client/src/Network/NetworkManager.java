@@ -11,6 +11,8 @@ public class NetworkManager {
     private BufferedReader receiveRead;
     private Socket sock;
 
+    private int status = 0;
+
     public NetworkManager(Logger logger) {
         this.logger = logger;
     }
@@ -24,9 +26,12 @@ public class NetworkManager {
 
             InputStream inputStream = sock.getInputStream();
             this.receiveRead = new BufferedReader(new InputStreamReader(inputStream));
+
+            status = 1;
         }
         catch (Exception e) {
             logger.info("Can't connect to server, " + e.toString());
+            status = 0;
             return false;
         }
 
@@ -61,11 +66,16 @@ public class NetworkManager {
         try {
             if (sock != null){
                 sock.close();
+                status = 0;
             }
         }
         catch (Exception e){
             logger.info("unable to disconnect/no active connection, " + e.toString());
         }
+    }
+
+    public int getStatus() {
+        return status;
     }
 }
 

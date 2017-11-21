@@ -131,7 +131,7 @@
           <text value="send file"/>
         </properties>
       </component>
-      <component id="3e053" class="javax.swing.JButton" binding="SendButton">
+      <component id="3e053" class="javax.swing.JButton" binding="sendButton">
         <constraints>
           <grid row="7" column="3" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>

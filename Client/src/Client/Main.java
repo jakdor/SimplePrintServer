@@ -1,5 +1,7 @@
 package Client;
 
+import Commands.Command;
+import Commands.CommandComboItem;
 import Commands.CommandsManager;
 import Network.Dispatcher;
 import Network.NetworkManager;
@@ -8,6 +10,8 @@ import Utils.Settings;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.*;
 
 public class Main extends JFrame {
@@ -18,6 +22,8 @@ public class Main extends JFrame {
     private static NetworkManager networkManager;
     private static Dispatcher dispatcher;
     private static CommandsManager commandsManager;
+
+    private int selectedMode = -1;
 
     private JPanel panelMain;
     private JTextField filePathField;
@@ -31,7 +37,7 @@ public class Main extends JFrame {
     private JRadioButton confButtonOpen;
     private JRadioButton confButtonSend;
     private JRadioButton confButtonPrint;
-    private JButton SendButton;
+    private JButton sendButton;
     private JLabel actionStatusLabel;
 
     private final String CONNECTION_TRY = "<html>Status: <font color='orange'>...</font></html>";
@@ -41,6 +47,10 @@ public class Main extends JFrame {
     private final String CONNECTION_CLOSED = "<html>Status: <font color='red'>server shutdown</font></html>";
 
     private final String TASK_IDL = "No active task/idle";
+    private final String TASK_SEND = "Task send";
+    private final String TASK_FAILED = "<html><font color='red'>Unable to send task</font></html>";
+    private final String TASK_INVALID_PATH = "<html><font color='red'>Invalid path</font></html>";
+    private final String TASK_INVALID_OPTIONS = "<html><font color='red'>No send option chosen</font></html>";
 
     public Main(String initPath) {
 
@@ -51,12 +61,20 @@ public class Main extends JFrame {
         confButtonOpen.addActionListener(actionEvent -> radioButtonOnlyOne(1));
         confButtonSend.addActionListener(actionEvent -> radioButtonOnlyOne(2));
 
+        sendButton.addActionListener(actionEvent -> execute());
+
         filePathField.setText(initPath);
 
         serverIpField.setText(settings.getIp());
         serverPortField.setText(Integer.toString(settings.getPort()));
 
         actionStatusLabel.setText(TASK_IDL);
+
+        commandsManager.add(new Command("test", "ls", "xdg-open %FILE%", ".txt"));
+
+        for(Command command : commandsManager) {
+            configBox.addItem(new CommandComboItem(command.getName(), 0));
+        }
 
         connect();
     }
@@ -130,14 +148,7 @@ public class Main extends JFrame {
 
         if(returnVal == JFileChooser.APPROVE_OPTION){
             String path = jFileChooser.getSelectedFile().toString();
-            String dir = jFileChooser.getCurrentDirectory().toString();
-
             filePathField.setText(path);
-
-            //todo move to validation/send function
-            settings.setLastPath(path);
-            settings.setLastPathDir(dir);
-            settings.saveSettings();
         }
     }
 
@@ -200,27 +211,65 @@ public class Main extends JFrame {
         }).start();
     }
 
+    private void execute(){
+        Command command = commandsManager.get(configBox.getSelectedIndex());
+
+        if(filePathField.getText().isEmpty()){
+            actionStatusLabel.setText(TASK_INVALID_PATH);
+            return;
+        }
+        else {
+            File file = new File(filePathField.getText());
+            if(!file.exists() || file.isDirectory()) {
+                actionStatusLabel.setText(TASK_INVALID_PATH);
+                return;
+            }
+        }
+
+        if(selectedMode == -1){
+            actionStatusLabel.setText(TASK_INVALID_OPTIONS);
+            return;
+        }
+
+        Path path = Paths.get(filePathField.getText());
+
+        if(dispatcher.send(command, selectedMode, path.getFileName().toString(), filePathField.getText())){
+            settings.setLastPath(path.toString());
+            settings.setLastPathDir(path.getParent().toString());
+            settings.saveSettings();
+
+            actionStatusLabel.setText(TASK_SEND);
+        }
+        else {
+            actionStatusLabel.setText(TASK_FAILED);
+        }
+    }
+
     private void radioButtonOnlyOne(int num){
         switch (num){
             case 0:
                 confButtonPrint.setSelected(true);
                 confButtonOpen.setSelected(false);
                 confButtonSend.setSelected(false);
+                selectedMode = 0;
                 break;
             case 1:
                 confButtonPrint.setSelected(false);
                 confButtonOpen.setSelected(true);
                 confButtonSend.setSelected(false);
+                selectedMode = 1;
                 break;
             case 2:
                 confButtonPrint.setSelected(false);
                 confButtonOpen.setSelected(false);
                 confButtonSend.setSelected(true);
+                selectedMode = 2;
                 break;
             default:
                 confButtonPrint.setSelected(false);
                 confButtonOpen.setSelected(false);
                 confButtonSend.setSelected(false);
+                selectedMode = -1;
         }
     }
 

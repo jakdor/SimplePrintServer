@@ -1,5 +1,7 @@
 package Network;
 
+import Commands.Command;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -20,17 +22,38 @@ public class Dispatcher {
         this.logger = logger;
     }
 
-    public void send(String command, int mode, String fileName, String filePath) {
+    public boolean send(Command command, int mode, String fileName, String filePath) {
+
+        if(networkManager.getStatus() == 0){
+            return false;
+        }
 
         Path path = Paths.get(filePath);
 
+        String commandStr;
+
+        switch (mode){
+            case 0:
+                commandStr = command.getPrintCommand();
+                break;
+            case 1:
+            case 2:
+                commandStr = command.getOpenCommand();
+                break;
+            default:
+                return false;
+        }
+
         try {
             byte[] data = Files.readAllBytes(path);
-            networkManager.send(serialize(new Carrier(command, mode, fileName, new String(data))));
+            networkManager.send(serialize(new Carrier(commandStr, mode, fileName, new String(data))));
+            return true;
         }
         catch (Exception e){
             logger.info("can't send Carrier to server, " + e.toString());
         }
+
+        return false;
     }
 
     private String serialize( Serializable serializable ) throws IOException {

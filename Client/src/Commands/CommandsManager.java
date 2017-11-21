@@ -7,7 +7,7 @@ import java.io.ObjectOutputStream;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class CommandsManager {
+public class CommandsManager implements Iterable<Command> {
 
     private Logger logger;
 
@@ -85,4 +85,25 @@ public class CommandsManager {
         return commandList.remove(i);
     }
 
+    @Override
+    public Iterator<Command> iterator() {
+        return new CommandIterator();
+    }
+
+    class CommandIterator implements Iterator<Command> {
+
+        private int index = 0;
+
+        public boolean hasNext() {
+            return index < size();
+        }
+
+        public Command next() {
+            return get(index++);
+        }
+
+        public void remove() {
+            CommandsManager.this.remove(index++);
+        }
+    }
 }
