@@ -44,6 +44,7 @@ public class Main extends JFrame {
     private JRadioButton confButtonPrint;
     private JButton sendButton;
     private JLabel actionStatusLabel;
+    private JCheckBox logBox;
 
     private final String CONNECTION_TRY = "<html>Status: <font color='orange'>...</font></html>";
     private final String CONNECTION_OK = "<html>Status: <font color='green'>connected</font></html>";
@@ -69,8 +70,10 @@ public class Main extends JFrame {
         confButtonSend.addActionListener(actionEvent -> radioButtonOnlyOne(2));
 
         sendButton.addActionListener(actionEvent -> execute());
-
         configEditButton.addActionListener(actionEvent -> openEditConfigDialog());
+
+        logBox.setSelected(settings.isLogging());
+        logBox.addActionListener(actionEvent -> changeLogging());
 
         filePathField.setText(initPath);
 
@@ -110,7 +113,7 @@ public class Main extends JFrame {
         JFrame frame = new JFrame("Simple Print Server - client");
         frame.setContentPane(new Main(settings.getLastPath()).panelMain);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(650, 260);
+        frame.setSize(650, 280);
         frame.setLocationRelativeTo(null);
         frame.setResizable(true);
         frame.setVisible(true);
@@ -191,6 +194,11 @@ public class Main extends JFrame {
         } catch (Exception e) {
             return "";
         }
+    }
+
+    private void changeLogging(){
+        settings.setLogging(logBox.isSelected());
+        settings.saveSettings();
     }
 
     private void openEditConfigDialog(){

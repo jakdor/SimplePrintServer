@@ -17,6 +17,8 @@ public class Settings {
     private String ip;
     private String lastPath;
     private String lastPathDir;
+    private boolean logging;
+    //todo add send options saving
 
     public Settings(String settingsFileName, Logger logger){
         this.logger = logger;
@@ -51,6 +53,7 @@ public class Settings {
         lines.add(ip);
         lines.add(lastPath);
         lines.add(lastPathDir);
+        lines.add(Boolean.toString(logging));
 
         try {
             Files.write(fileName, lines);
@@ -65,6 +68,7 @@ public class Settings {
         ip = lines.get(1);
         lastPath = lines.get(2);
         lastPathDir = lines.get(3);
+        logging = Boolean.parseBoolean(lines.get(4));
     }
 
     private void setDefaultSettings(){
@@ -72,13 +76,15 @@ public class Settings {
         port = 8845;
         lastPath = "";
         lastPathDir = "";
+        logging = false;
     }
 
-    public void updateSettings(int port, String ip, String lastPath, String lastPathDir) {
+    public void updateSettings(int port, String ip, String lastPath, String lastPathDir, boolean logging) {
         this.port = port;
         this.ip = ip;
         this.lastPath = lastPath;
         this.lastPathDir = lastPathDir;
+        this.logging = logging;
     }
 
     public int getPort() {
@@ -111,5 +117,13 @@ public class Settings {
 
     public void setLastPathDir(String lastPathDir) {
         this.lastPathDir = lastPathDir;
+    }
+
+    public boolean isLogging() {
+        return logging;
+    }
+
+    public void setLogging(boolean logging) {
+        this.logging = logging;
     }
 }

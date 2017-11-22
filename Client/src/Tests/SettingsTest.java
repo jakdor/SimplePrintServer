@@ -22,6 +22,7 @@ public class SettingsTest {
     private final String LAST_PATH = "dir/testStr";
     private final String LAST_DIR = "dir";
     private final int PORT = 6666;
+    private final boolean LOGGING = true;
 
     @BeforeClass
     public static void beforeClass(){
@@ -52,31 +53,34 @@ public class SettingsTest {
         Assert.assertNotNull(settings.getIp());
         Assert.assertEquals("", settings.getLastPath());
         Assert.assertEquals("", settings.getLastPathDir());
+        Assert.assertEquals(false, settings.isLogging());
     }
 
     @Test
     public void saveSettings() throws Exception {
-        settings.updateSettings(PORT, IP, LAST_PATH, LAST_DIR);
+        settings.updateSettings(PORT, IP, LAST_PATH, LAST_DIR, LOGGING);
         settings.saveSettings();
 
         Vector<String> lines = new Vector<>();
         Files.lines(Paths.get(SETTINGS_PATH)).forEachOrdered(lines::add);
 
-        Assert.assertEquals(4, lines.size());
+        Assert.assertEquals(5, lines.size());
         Assert.assertEquals(Integer.toString(PORT), lines.get(0));
         Assert.assertEquals(IP, lines.get(1));
         Assert.assertEquals(LAST_PATH, lines.get(2));
         Assert.assertEquals(LAST_DIR, lines.get(3));
+        Assert.assertEquals(LOGGING, Boolean.parseBoolean(lines.get(4)));
     }
 
     @Test
     public void updateSettings() throws Exception {
-        settings.updateSettings(PORT, IP, LAST_PATH, LAST_DIR);
+        settings.updateSettings(PORT, IP, LAST_PATH, LAST_DIR, LOGGING);
 
         Assert.assertEquals(PORT, settings.getPort());
         Assert.assertEquals(IP, settings.getIp());
         Assert.assertEquals(LAST_PATH, settings.getLastPath());
         Assert.assertEquals(LAST_DIR, settings.getLastPathDir());
+        Assert.assertEquals(LOGGING, settings.isLogging());
     }
 
     private static Logger setUpLogger() {
