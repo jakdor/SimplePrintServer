@@ -82,6 +82,13 @@ public class CommandsManagerTest {
         Assert.assertEquals(2, commandsManager.getFirstFileFormatIndex(".txt"));
     }
 
+    @Test
+    public void getFileFormatIndexForComboTest() throws Exception {
+        Assert.assertEquals(0, commandsManager.getFirstFileFormatIndex("pdf"));
+        Assert.assertEquals(2, commandsManager.getFirstFileFormatIndex("txt"));
+        Assert.assertEquals(0, commandsManager.getFirstFileFormatIndex("dupa"));
+    }
+
     private static Logger setUpLogger() {
         Logger logger = Logger.getLogger("SPSClientTestLogger");
         logger.setUseParentHandlers(false);

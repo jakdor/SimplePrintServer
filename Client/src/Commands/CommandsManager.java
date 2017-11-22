@@ -12,7 +12,6 @@ public class CommandsManager implements Iterable<Command> {
     private Logger logger;
 
     private String commandsSavePath = "";
-    private final String FILE_NAME = ".SPSCommands";
 
     private List<Command> commandList = new Vector<>();
 
@@ -21,10 +20,10 @@ public class CommandsManager implements Iterable<Command> {
         this.commandsSavePath = path;
 
         if(commandsSavePath.isEmpty()){
-            commandsSavePath = FILE_NAME;
+            commandsSavePath = getCommandFileName();
         }
         else {
-            commandsSavePath += "/" + FILE_NAME;
+            commandsSavePath += "/" + getCommandFileName();
         }
     }
 
@@ -54,10 +53,32 @@ public class CommandsManager implements Iterable<Command> {
 
     public int getFirstFileFormatIndex(String fileFormat){
         for (Command command : commandList){
-            if(command.getFileFormat().equals(fileFormat)){
+            if(command.getFileFormat().contains(fileFormat)){
                 return commandList.indexOf(command);
             }
         }
+        return 0;
+    }
+
+    private String getCommandFileName(){
+        String osName = System.getProperty("os.name");
+        String osNameMatch = osName.toLowerCase();
+
+        if(osNameMatch.contains("linux")) {
+            return ".SPSCommands";
+        }
+        else {
+            return "SPSCommands";
+        }
+    }
+
+    public int getIndexWithExtension(String extension){
+        for(Command command : commandList){
+            if(command.getFileFormat().contains(extension)){
+                commandList.indexOf(command);
+            }
+        }
+
         return 0;
     }
 

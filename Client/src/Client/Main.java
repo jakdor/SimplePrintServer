@@ -57,7 +57,6 @@ public class Main extends JFrame {
     private final String TASK_INVALID_PATH = "<html><font color='red'>Invalid path</font></html>";
     private final String TASK_INVALID_OPTIONS = "<html><font color='red'>No send option chosen</font></html>";
 
-    //todo invisible files on windows
     //todo auto choosing of profile
 
     public Main(String initPath) {
@@ -94,7 +93,7 @@ public class Main extends JFrame {
         String path = getSettingsPath();
 
         logger = setUpLogger();
-        settings = new Settings(path + ".SPSClientSettings", logger);
+        settings = new Settings(path + getSettingsFileName(), logger);
         settings.readSettings();
         commandsManager = new CommandsManager(path, logger);
         networkManager = new NetworkManager(logger);
@@ -154,6 +153,18 @@ public class Main extends JFrame {
         return path + "/";
     }
 
+    private static String getSettingsFileName(){
+        String osName = System.getProperty("os.name");
+        String osNameMatch = osName.toLowerCase();
+
+        if(osNameMatch.contains("linux")) {
+            return ".SPSClientSettings";
+        }
+        else {
+            return "SPSClientSettings";
+        }
+    }
+
     private void choosePath(){
         JFileChooser jFileChooser = new JFileChooser();
         jFileChooser.setCurrentDirectory(new File(settings.getLastPathDir()));
@@ -162,6 +173,23 @@ public class Main extends JFrame {
         if(returnVal == JFileChooser.APPROVE_OPTION){
             String path = jFileChooser.getSelectedFile().toString();
             filePathField.setText(path);
+            autoChooseProfile(path);
+        }
+    }
+
+    private void autoChooseProfile(String filePath){
+        String extension = getFileExtension(filePath);
+        int index = commandsManager.getFirstFileFormatIndex(extension);
+        configBox.setSelectedIndex(index);
+    }
+
+    private String getFileExtension(String filePath) {
+        File file = new File(filePath);
+        String name = file.getName();
+        try {
+            return name.substring(name.lastIndexOf(".") + 1);
+        } catch (Exception e) {
+            return "";
         }
     }
 

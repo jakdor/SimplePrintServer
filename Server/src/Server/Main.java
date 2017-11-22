@@ -26,7 +26,7 @@ public class Main
     {
         logger = setUpLogger();
 
-        settings = new Settings(getSettingsPath() + ".SPSSetting");
+        settings = new Settings(getSettingsPath() + getSettingsFileName());
         settings.readSettings();
         loggerEnabled = settings.isLogging();
 
@@ -150,21 +150,19 @@ public class Main
     }
 
     private static String getSettingsPath(){
+        return System.getProperty("user.home") + "/";
+    }
+
+    private static String getSettingsFileName(){
         String osName = System.getProperty("os.name");
         String osNameMatch = osName.toLowerCase();
-        String path;
 
         if(osNameMatch.contains("linux")) {
-            path = System.getProperty("user.home");
-        }
-        else if(osNameMatch.contains("windows")) {
-            path = System.getenv("LOCALAPPDATA") + "/SPServer";
+            return ".SPSSetting";
         }
         else {
-            path = System.getProperty("user.home");
+            return "SPSSetting";
         }
-
-        return path + "/";
     }
 
     static void settingsDialogClosed(){
