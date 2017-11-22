@@ -48,7 +48,7 @@ public class SettingsTest {
         settings.saveSettings();
 
         Vector<String> lines = new Vector<>();
-        Files.lines(Paths.get(settingsPath)).forEachOrdered(str -> lines.add(str));
+        Files.lines(Paths.get(settingsPath)).forEachOrdered(lines::add);
 
         Assert.assertEquals(4, lines.size());
         Assert.assertEquals("6666", lines.get(0));

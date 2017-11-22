@@ -5,12 +5,7 @@ import Server.Main;
 import Server.ReceivedDialog;
 
 import java.awt.*;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.*;
 import java.util.Base64;
 
 public class TaskManager {
@@ -20,7 +15,7 @@ public class TaskManager {
     private String tempFilePath = "";
 
     private String command;
-    private String fileStr;
+    private byte[] fileData;
     private String fileName;
     private int mode;
 
@@ -29,7 +24,7 @@ public class TaskManager {
         this.received = received;
     }
 
-    private Object deserialize(String str) throws IOException, ClassNotFoundException {
+    public Object deserialize(String str) throws IOException, ClassNotFoundException {
         byte [] data = Base64.getDecoder().decode(str);
         ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(data));
         Object object  = objectInputStream.readObject();
@@ -45,7 +40,7 @@ public class TaskManager {
                     command = carrier.getCommand();
                     mode = carrier.getMode();
                     fileName = carrier.getFileName();
-                    fileStr = carrier.getFileStr();
+                    fileData = carrier.getFileData();
                 }
             }
         }
@@ -61,10 +56,10 @@ public class TaskManager {
     }
 
     public void saveFile(){
-        if(fileStr == null){
+        if(fileData == null){
             return;
         }
-        else if(fileStr.isEmpty()){
+        else if(fileData.length == 0){
             return;
         }
 
@@ -85,15 +80,28 @@ public class TaskManager {
             if(mode == 0){
                 File temp = File.createTempFile("TempFile", ".tmp");
                 tempFilePath = temp.getAbsolutePath();
-                Files.write(Paths.get(tempFilePath), fileStr.getBytes());
+
+                writeToFile(tempFilePath, fileData);
+
                 temp.deleteOnExit();
             }
             else {
-                Files.write(Paths.get(path), fileStr.getBytes());
+                writeToFile(path, fileData);
             }
         }
         catch (Exception e){
             Main.log("Unable to save received file, " + e.toString());
+        }
+    }
+
+    public void writeToFile(String path, byte[] data) {
+        try {
+            FileOutputStream fos = new FileOutputStream(path);
+            fos.write(data);
+            fos.close();
+        }
+        catch (Exception e){
+            Main.log("unable to save file, " + e.toString());
         }
     }
 
@@ -195,8 +203,8 @@ public class TaskManager {
         return command;
     }
 
-    public String getFileStr() {
-        return fileStr;
+    public byte[] getFileData() {
+        return fileData;
     }
 
     public int getMode() {

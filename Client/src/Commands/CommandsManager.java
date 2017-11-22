@@ -14,7 +14,7 @@ public class CommandsManager implements Iterable<Command> {
     private String commandsSavePath = "";
     private final String FILE_NAME = ".SPSCommands";
 
-    List<Command> commandList = new Vector<>();
+    private List<Command> commandList = new Vector<>();
 
     public CommandsManager(String path, Logger logger){
         this.logger = logger;

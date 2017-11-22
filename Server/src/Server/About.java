@@ -7,7 +7,7 @@ import java.awt.event.WindowEvent;
 public class About extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
-    private JTextArea aboutInfoStuffTextArea;
+    private JTextArea aboutInfoStuffTextArea; //todo add project info
 
     private About() {
         setContentPane(contentPane);

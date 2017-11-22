@@ -6,8 +6,6 @@ import Commands.CommandsManager;
 import Utils.Subject;
 
 import javax.swing.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 public class EditConfigDialog extends JDialog {
 

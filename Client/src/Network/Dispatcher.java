@@ -2,10 +2,7 @@ package Network;
 
 import Commands.Command;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,8 +42,8 @@ public class Dispatcher {
         }
 
         try {
-            byte[] data = Files.readAllBytes(path);
-            networkManager.send(serialize(new Carrier(commandStr, mode, fileName, new String(data))));
+            byte[] fileData = readFile(path.toString());
+            networkManager.send(serialize(new Carrier(commandStr, mode, fileName, fileData)));
             return true;
         }
         catch (Exception e){
@@ -62,5 +59,10 @@ public class Dispatcher {
         objectOutputStream.writeObject( serializable );
         objectOutputStream.close();
         return Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+    }
+
+    private byte[] readFile(String filePath) throws IOException {
+        Path path = Paths.get(filePath);
+        return Files.readAllBytes(path);
     }
 }

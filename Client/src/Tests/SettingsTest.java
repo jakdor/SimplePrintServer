@@ -60,7 +60,7 @@ public class SettingsTest {
         settings.saveSettings();
 
         Vector<String> lines = new Vector<>();
-        Files.lines(Paths.get(SETTINGS_PATH)).forEachOrdered(str -> lines.add(str));
+        Files.lines(Paths.get(SETTINGS_PATH)).forEachOrdered(lines::add);
 
         Assert.assertEquals(4, lines.size());
         Assert.assertEquals(Integer.toString(PORT), lines.get(0));

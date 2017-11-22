@@ -6,6 +6,7 @@ import org.junit.*;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 
@@ -16,20 +17,25 @@ public class TaskManagerTest {
     private static String testStr, testStr2, testStr3, testStr4;
 
     private static final Carrier carrier
-            = new Carrier("ls", 1, "FileName.pdf", "File here");
+            = new Carrier("ls", 1, "FileName.pdf", ("File here").getBytes());
     private static final Carrier carrier2
-            = new Carrier("mkdir out/testEnv/testDir123", 0, "test.txt", "Hello world!");
+            = new Carrier("mkdir out/testEnv/testDir123", 0, "test.txt", ("Hello world!").getBytes());
     private static final Carrier carrier3
-            = new Carrier("ls", 0, "test.txt", "It's over Anakin, I have the high ground!");
+            = new Carrier("ls", 0, "test.txt", ("It's over Anakin, I have the high ground!").getBytes());
     private static final Carrier carrier4
-            = new Carrier("mkdir %FILE%2", 0, "test", "It's over Anakin, I have the high ground!");
+            = new Carrier("mkdir %FILE%2", 0, "test", ("It's over Anakin, I have the high ground!").getBytes());
 
-    private static String serialize( Serializable serializable ) throws IOException {
+    private static String serialize( Serializable serializable ) throws IOException { //same function on client-side
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = new ObjectOutputStream( byteArrayOutputStream );
         objectOutputStream.writeObject( serializable );
         objectOutputStream.close();
         return Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+    }
+
+    private byte[] readFile(String filePath) throws IOException {
+        Path path = Paths.get(filePath);
+        return Files.readAllBytes(path);
     }
 
     @BeforeClass
@@ -64,7 +70,7 @@ public class TaskManagerTest {
     public void parseTest() throws Exception {
         Assert.assertEquals("ls", taskManager.getCommand());
         Assert.assertEquals("FileName.pdf", taskManager.getFileName());
-        Assert.assertEquals("File here", taskManager.getFileStr());
+        Assert.assertEquals("File here", new String(taskManager.getFileData()));
         Assert.assertEquals(1, taskManager.getMode());
     }
 
@@ -98,7 +104,7 @@ public class TaskManagerTest {
     }
 
     @Test
-    public void IntegrationTest1() throws Exception {
+    public void integrationTest1() throws Exception {
         taskManager = new TaskManager(testSavePath, testStr2);
         taskManager.parse();
         taskManager.saveFile();
@@ -108,5 +114,18 @@ public class TaskManagerTest {
 
         Assert.assertEquals("Hello world!", new String(file));
         Assert.assertTrue(Files.exists(Paths.get(testSavePath + "/" + "testDir123")));
+    }
+
+    @Test
+    public void base64FileSerializationTest() throws Exception {
+        byte[] fileData = readFile(testSavePath + "/test.pdf");
+
+        Carrier carrier = new Carrier("mkdir %FILE%2", 0, "test", fileData);
+
+        String serializedCarrier = serialize(carrier);
+        Carrier carrier2 = (Carrier) taskManager.deserialize(serializedCarrier);
+
+        Assert.assertTrue(carrier.equals(carrier2));
+        Assert.assertEquals(new String(carrier.getFileData()), new String(carrier2.getFileData()));
     }
 }
