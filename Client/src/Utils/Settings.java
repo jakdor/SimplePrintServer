@@ -18,7 +18,7 @@ public class Settings {
     private String lastPath;
     private String lastPathDir;
     private boolean logging;
-    //todo add send options saving
+    private int configMode;
 
     public Settings(String settingsFileName, Logger logger){
         this.logger = logger;
@@ -54,6 +54,7 @@ public class Settings {
         lines.add(lastPath);
         lines.add(lastPathDir);
         lines.add(Boolean.toString(logging));
+        lines.add(Integer.toString(configMode));
 
         try {
             Files.write(fileName, lines);
@@ -64,11 +65,18 @@ public class Settings {
     }
 
     private void parseSettings(){
-        port = Integer.parseInt(lines.get(0));
-        ip = lines.get(1);
-        lastPath = lines.get(2);
-        lastPathDir = lines.get(3);
-        logging = Boolean.parseBoolean(lines.get(4));
+        try {
+            port = Integer.parseInt(lines.get(0));
+            ip = lines.get(1);
+            lastPath = lines.get(2);
+            lastPathDir = lines.get(3);
+            logging = Boolean.parseBoolean(lines.get(4));
+            configMode = Integer.parseInt(lines.get(5));
+        }
+        catch (Exception e){
+            logger.info("error while parsing settings, " + e.toString());
+        }
+
     }
 
     private void setDefaultSettings(){
@@ -77,14 +85,16 @@ public class Settings {
         lastPath = "";
         lastPathDir = "";
         logging = false;
+        configMode = 0;
     }
 
-    public void updateSettings(int port, String ip, String lastPath, String lastPathDir, boolean logging) {
+    public void updateSettings(int port, String ip, String lastPath, String lastPathDir, boolean logging, int configMode) {
         this.port = port;
         this.ip = ip;
         this.lastPath = lastPath;
         this.lastPathDir = lastPathDir;
         this.logging = logging;
+        this.configMode = configMode;
     }
 
     public int getPort() {
@@ -125,5 +135,13 @@ public class Settings {
 
     public void setLogging(boolean logging) {
         this.logging = logging;
+    }
+
+    public int getConfigMode() {
+        return configMode;
+    }
+
+    public void setConfigMode(int configMode) {
+        this.configMode = configMode;
     }
 }

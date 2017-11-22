@@ -75,6 +75,8 @@ public class Main extends JFrame {
         logBox.setSelected(settings.isLogging());
         logBox.addActionListener(actionEvent -> changeLogging());
 
+        loadModeSetting();
+
         filePathField.setText(initPath);
 
         serverIpField.setText(settings.getIp());
@@ -309,6 +311,20 @@ public class Main extends JFrame {
         }
     }
 
+    private void loadModeSetting(){
+        switch (settings.getConfigMode()){
+            case 0:
+                confButtonPrint.setSelected(true);
+                break;
+            case 1:
+                confButtonOpen.setSelected(true);
+                break;
+            case 2:
+                confButtonSend.setSelected(true);
+                break;
+        }
+    }
+
     private void radioButtonOnlyOne(int num){
         switch (num){
             case 0:
@@ -334,6 +350,11 @@ public class Main extends JFrame {
                 confButtonOpen.setSelected(false);
                 confButtonSend.setSelected(false);
                 selectedMode = -1;
+        }
+
+        if(selectedMode >= 0){
+            settings.setConfigMode(selectedMode);
+            settings.saveSettings();
         }
     }
 
