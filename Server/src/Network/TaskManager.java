@@ -141,14 +141,10 @@ public class TaskManager {
 
         String osName = System.getProperty("os.name");
         String osNameMatch = osName.toLowerCase();
-        ProcessBuilder builder;
 
         if(osNameMatch.contains("windows")) {
-            builder = new ProcessBuilder("cmd.exe", "/c", command);
-            builder.redirectErrorStream(true);
-
             try {
-                builder.start();
+                Runtime.getRuntime().exec(command);
             }
             catch (Exception e){
                 Main.log("Unable to lunch command, " + e.toString());

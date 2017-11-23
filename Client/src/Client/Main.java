@@ -58,7 +58,7 @@ public class Main extends JFrame {
     private final String TASK_INVALID_PATH = "<html><font color='red'>Invalid path</font></html>";
     private final String TASK_INVALID_OPTIONS = "<html><font color='red'>No send option chosen</font></html>";
 
-    //todo auto choosing of profile
+    //todo parse multiple file formats
 
     public Main(String initPath) {
 
