@@ -171,10 +171,28 @@ public class TaskManager {
 
     private String formatFinalFilePath(){
         String path = "";
-        if(!savePath.isEmpty()){
-            path = savePath + "/";
+
+        if(mode == 0){
+            path = tempFilePath;
         }
-        path += fileName;
+        else {
+            String osName = System.getProperty("os.name");
+            String osNameMatch = osName.toLowerCase();
+
+            String slash;
+            if(osNameMatch.contains("windows")) {
+                slash = "\\";
+            }
+            else {
+                slash = "/";
+            }
+
+            if(!savePath.isEmpty()){
+                path = savePath + slash;
+            }
+            path += fileName;
+        }
+
         return path;
     }
 

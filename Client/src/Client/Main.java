@@ -53,12 +53,13 @@ public class Main extends JFrame {
     private final String CONNECTION_CLOSED = "<html>Status: <font color='red'>server shutdown</font></html>";
 
     private final String TASK_IDL = "No active task/idle";
+    private final String TASK_WORKING = "Sending...";
     private final String TASK_SEND = "Task send";
     private final String TASK_FAILED = "<html><font color='red'>Unable to send task</font></html>";
     private final String TASK_INVALID_PATH = "<html><font color='red'>Invalid path</font></html>";
     private final String TASK_INVALID_OPTIONS = "<html><font color='red'>No send option chosen</font></html>";
 
-    //todo parse multiple file formats
+    //todo pack default commands to jar
 
     public Main(String initPath) {
 
@@ -88,6 +89,8 @@ public class Main extends JFrame {
             configBox.addItem(new CommandComboItem(command.getName(), commandsManager.indexOf(command)));
         }
 
+        autoChooseProfile(settings.getLastPath());
+
         subject = new Subject();
         comboObserver = new ComboObserver(subject);
 
@@ -97,9 +100,16 @@ public class Main extends JFrame {
     public static void main(String[] args) {
         String path = getSettingsPath();
 
-        logger = setUpLogger();
+        logger = Logger.getLogger("default");
+
         settings = new Settings(path + getSettingsFileName(), logger);
         settings.readSettings();
+
+        if(settings.isLogging()) {
+            logger = setUpLogger();
+            settings.updateLogger(logger);
+        }
+
         commandsManager = new CommandsManager(path, logger);
         networkManager = new NetworkManager(logger);
         dispatcher = new Dispatcher(networkManager, logger);
@@ -278,40 +288,45 @@ public class Main extends JFrame {
     }
 
     private void execute(){
-        Command command = commandsManager.get(configBox.getSelectedIndex());
+        actionStatusLabel.setText(TASK_WORKING);
 
-        if(filePathField.getText().isEmpty()){
-            actionStatusLabel.setText(TASK_INVALID_PATH);
-            return;
-        }
-        else {
-            File file = new File(filePathField.getText());
-            if(!file.exists() || file.isDirectory()) {
+        new Thread(() ->{
+            Command command = commandsManager.get(configBox.getSelectedIndex());
+
+            if(filePathField.getText().isEmpty()){
                 actionStatusLabel.setText(TASK_INVALID_PATH);
                 return;
             }
-        }
+            else {
+                File file = new File(filePathField.getText());
+                if(!file.exists() || file.isDirectory()) {
+                    actionStatusLabel.setText(TASK_INVALID_PATH);
+                    return;
+                }
+            }
 
-        if(selectedMode == -1){
-            actionStatusLabel.setText(TASK_INVALID_OPTIONS);
-            return;
-        }
+            if(selectedMode == -1){
+                actionStatusLabel.setText(TASK_INVALID_OPTIONS);
+                return;
+            }
 
-        Path path = Paths.get(filePathField.getText());
+            Path path = Paths.get(filePathField.getText());
 
-        if(dispatcher.send(command, selectedMode, path.getFileName().toString(), filePathField.getText())){
-            settings.setLastPath(path.toString());
-            settings.setLastPathDir(path.getParent().toString());
-            settings.saveSettings();
+            if(dispatcher.send(command, selectedMode, path.getFileName().toString(), filePathField.getText())){
+                settings.setLastPath(path.toString());
+                settings.setLastPathDir(path.getParent().toString());
+                settings.saveSettings();
 
-            actionStatusLabel.setText(TASK_SEND);
-        }
-        else {
-            actionStatusLabel.setText(TASK_FAILED);
-        }
+                actionStatusLabel.setText(TASK_SEND);
+            }
+            else {
+                actionStatusLabel.setText(TASK_FAILED);
+            }
+        }).start();
     }
 
     private void loadModeSetting(){
+        selectedMode = settings.getConfigMode();
         switch (settings.getConfigMode()){
             case 0:
                 confButtonPrint.setSelected(true);

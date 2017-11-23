@@ -97,6 +97,10 @@ public class Settings {
         this.configMode = configMode;
     }
 
+    public void updateLogger(Logger logger){
+        this.logger = logger;
+    }
+
     public int getPort() {
         return port;
     }
