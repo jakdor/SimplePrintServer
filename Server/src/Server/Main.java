@@ -81,7 +81,7 @@ public class Main
             if(!aboutOpenLock) {
 
                 aboutOpenLock = true;
-                EventQueue.invokeLater(About::start);
+                EventQueue.invokeLater(() -> About.start(logger));
             }
         });
 

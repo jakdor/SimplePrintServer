@@ -89,6 +89,14 @@ public class CommandsManagerTest {
         Assert.assertEquals(0, commandsManager.getFirstFileFormatIndex("dupa"));
     }
 
+    @Test
+    public void firstRunTest(){
+        commandsManager.readCommands();
+        Assert.assertEquals(4, commandsManager.size());
+        Assert.assertEquals("Default", commandsManager.get(0).getName());
+        Assert.assertEquals("%FILE%", commandsManager.get(0).getPrintCommand());
+    }
+
     private static Logger setUpLogger() {
         Logger logger = Logger.getLogger("SPSClientTestLogger");
         logger.setUseParentHandlers(false);

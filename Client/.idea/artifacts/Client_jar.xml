@@ -3,6 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/Client_jar</output-path>
     <root id="archive" name="Client.jar">
       <element id="module-output" name="Client" />
+      <element id="extracted-dir" path="$USER_HOME$/Pobrane/filedrop-1.1/filedrop.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

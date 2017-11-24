@@ -8,6 +8,7 @@ import Network.NetworkManager;
 import Utils.Observer;
 import Utils.Settings;
 import Utils.Subject;
+import net.iharder.dnd.FileDrop;
 
 import javax.swing.*;
 import java.awt.*;
@@ -91,6 +92,12 @@ public class Main extends JFrame {
 
         subject = new Subject();
         comboObserver = new ComboObserver(subject);
+
+        new FileDrop( panelMain, files -> { //handle file drop
+            String path = files[0].getAbsolutePath();
+            filePathField.setText(path);
+            autoChooseProfile(path);
+        });
 
         connect();
     }
