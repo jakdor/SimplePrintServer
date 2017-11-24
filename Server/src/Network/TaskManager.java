@@ -137,6 +137,11 @@ public class TaskManager {
     }
 
     private boolean lunchCommand(String command){
+
+        if(command.isEmpty()){
+            return false;
+        }
+
         boolean result = true;
 
         String osName = System.getProperty("os.name");

@@ -52,7 +52,7 @@ public class EditConfigDialog extends JDialog {
         EditConfigDialog dialog = new EditConfigDialog();
         dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         dialog.pack();
-        dialog.setSize(400, 190);
+        dialog.setSize(500, dialog.getHeight());
         dialog.setLocationRelativeTo(null);
         dialog.setResizable(true);
         dialog.setVisible(true);

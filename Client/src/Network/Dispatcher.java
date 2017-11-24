@@ -42,6 +42,7 @@ public class Dispatcher {
         }
 
         try {
+            fileName = fileName.replace(" ", "_");
             byte[] fileData = readFile(path.toString());
             networkManager.send(serialize(new Carrier(commandStr, mode, fileName, fileData)));
             return true;
