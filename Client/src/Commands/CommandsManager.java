@@ -1,9 +1,9 @@
 package Commands;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -28,6 +28,11 @@ public class CommandsManager implements Iterable<Command> {
     }
 
     public void readCommands(){
+        File file = new File(commandsSavePath);
+        if(!file.exists()) {
+            getDefaultFileFromJar();
+        }
+
         try {
             FileInputStream fileInputStream = new FileInputStream(commandsSavePath);
             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
@@ -72,14 +77,21 @@ public class CommandsManager implements Iterable<Command> {
         }
     }
 
-    public int getIndexWithExtension(String extension){
-        for(Command command : commandList){
-            if(command.getFileFormat().contains(extension)){
-                commandList.indexOf(command);
+    private void getDefaultFileFromJar(){
+        try{
+            InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("FILES/SPSCommands");
+            byte[] bytes = new byte[8192];
+            int bytesRead;
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            while ((bytesRead = inputStream.read(bytes)) != -1) {
+                output.write(bytes, 0, bytesRead);
             }
+            Path file = Paths.get(commandsSavePath);
+            Files.write(file, bytes);
         }
-
-        return 0;
+        catch (Exception e){
+            logger.info("unable to get commands file from jar, " + e.toString());
+        }
     }
 
     public List<Command> getCommandList() {

@@ -58,9 +58,7 @@ public class Main extends JFrame {
     private final String TASK_FAILED = "<html><font color='red'>Unable to send task</font></html>";
     private final String TASK_INVALID_PATH = "<html><font color='red'>Invalid path</font></html>";
     private final String TASK_INVALID_OPTIONS = "<html><font color='red'>No send option chosen</font></html>";
-
-    //todo pack default commands to jar
-
+    
     public Main(String initPath) {
 
         pathButton.addActionListener(actionEvent -> choosePath());
@@ -193,6 +191,10 @@ public class Main extends JFrame {
     }
 
     private void autoChooseProfile(String filePath){
+        if(commandsManager.size() == 0){
+            return;
+        }
+
         String extension = getFileExtension(filePath);
         int index = commandsManager.getFirstFileFormatIndex(extension);
         configBox.setSelectedIndex(index);
