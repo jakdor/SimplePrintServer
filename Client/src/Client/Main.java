@@ -130,7 +130,7 @@ public class Main extends JFrame {
         JFrame frame = new JFrame("Simple Print Server - client");
         frame.setContentPane(new Main(settings.getLastPath()).panelMain);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(650, 280);
+        frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setResizable(true);
         frame.setVisible(true);
@@ -160,17 +160,19 @@ public class Main extends JFrame {
         String osNameMatch = osName.toLowerCase();
         String path;
 
+        path = System.getProperty("user.home");
+
         if(osNameMatch.contains("linux")) {
-            path = System.getProperty("user.home");
+            path += "/";
         }
         else if(osNameMatch.contains("windows")) {
-            path = System.getenv("LOCALAPPDATA") + "/SPServer";
+            path += "\\";
         }
         else {
-            path = System.getProperty("user.home");
+            path += "/";
         }
 
-        return path + "/";
+        return path;
     }
 
     private static String getSettingsFileName(){
